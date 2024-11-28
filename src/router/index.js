@@ -24,6 +24,28 @@ const router = createRouter({
       name: 'Order',
       component: () => import('../views/Order.vue'),
     },
+    {
+      path: '/UserInfo',
+      name: 'UserInfo',
+      component: () => import('../views/userInfo.vue'),
+    },
+    {
+      path: '/ChangeUserInfo',
+      name: 'ChangeUserInfo',
+      component: () => import('../views/changeUserInfo.vue'),
+      children: [
+        {
+          path: 'ChangePersonalInfo',
+          name: 'ChangePersonalInfo',
+          component: () => import('../components/changeUserInfo/changePersonalInfo.vue'),
+        },
+        {
+          path: 'ChangePassword',
+          name: 'ChangePassword',
+          component: () => import('../components/changeUserInfo/changePassword.vue'),
+        }
+      ]
+    },
   ],
 })
 

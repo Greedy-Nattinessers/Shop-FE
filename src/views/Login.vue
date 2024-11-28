@@ -60,9 +60,6 @@ import { ref, reactive } from 'vue';
 import { Avatar, Lock, Message } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus';
 
-//背景图片
-const imgUrl = new URL('../../../public/login-head.png', import.meta.url).href
-
 //表单初始数据
 const loginForm = reactive({
     userName: '',
@@ -158,7 +155,7 @@ const submitForm = () => {
 
 <style scoped>
 .background {
-    background-image: url('../../../public/loginBackground.png');
+    background-image: url('../../../public/back.png');
     background-repeat: no-repeat;
     background-size: contain;
     background-position: center;
