@@ -12,6 +12,7 @@ export default {
           count:3,
           image:"https://tse2-mm.cn.bing.net/th/id/OIP-C.FRZh6FryVcYvQa5KVRpUCwAAAA?rs=1&pid=ImgDetMain",
           state:"已签收",
+          showIt:true,
         },
         {
           id:2,
@@ -21,7 +22,8 @@ export default {
           intro:"甄布诗人 我说的",
           count:4,
           image:"https://tse3-mm.cn.bing.net/th/id/OIP-C.GDCnhLgh7PLOiraerH7GaQHaF9?rs=1&pid=ImgDetMain",
-          state:"正在配送中"
+          state:"正在配送中",
+          showIt: true,
         }
       ]
     }
@@ -35,7 +37,10 @@ export default {
     },
     jumpToDetails:function (e){
       console.log("跳到"+e.name)
-    }
+    },
+    deleteOrder:function (e){
+      e.showIt=false
+    },
   }
 }
 </script>
@@ -52,7 +57,8 @@ export default {
         <th>操作</th>
         <th>状态</th>
       </tr>
-      <tr v-for="(item,index) in orders" id="order">
+      <template v-for="(item,index) in orders">
+      <tr id="order" v-if="item.showIt">
         <td>
           <img :src="item.image" id="images" @click="jumpToDetails(item)">
         </td>
@@ -62,11 +68,14 @@ export default {
         </td>
         <td>￥{{item.price}}</td>
         <td>{{item.count}}</td>
-        <td>{{priceSum(item)}}</td>
+        <td>￥{{priceSum(item)}}</td>
         <td>
-          <button v-show="item.state!=='已签收'" id="recpt" @click="signReceive(item)">确认收货</button></td>
+          <button v-if="item.state!=='已签收'" id="recpt" @click="signReceive(item)">确认收货</button>
+          <button v-else id="delt" @click="deleteOrder(item)">删除记录</button>
+        </td>
         <td style="color: red">{{item.state}}</td>
       </tr>
+      </template>
     </table>
   </body>
 </template>
@@ -112,6 +121,17 @@ body{
   font-size: 18px;
   border-radius: 8px;
   color: white;
+}
+
+#delt{
+  background-color: rgb(220, 20, 50);
+  font-size: 18px;
+  border-radius: 8px;
+  color: white;
+}
+
+#delt:hover{
+  background-color: #1b3c2d;
 }
 
 #recpt:hover{
