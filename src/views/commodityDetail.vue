@@ -1,5 +1,30 @@
 <template>
     <div class="container">
+        <div class="left-side">
+            <div class="large-image">
+                <img :src="images[currentIndex]" alt="Large Image" />
+            </div>
+
+            <div class="image-switcher">
+                <div class="thumbnail-container">
+                    <el-button @click="prevImage" icon="ArrowLeftBold" class="arrow-button"></el-button>
+                    <div class="thumbnails">
+                        <img v-for="(image, index) in images" :key="index" :src="image" @click="setCurrentImage(index)"
+                            :class="{ active: index === currentIndex }" class="thumbnail" alt="Thumbnail" />
+                    </div>
+                    <el-button @click="nextImage" icon="ArrowRightBold" class="arrow-button"></el-button>
+                </div>
+
+            </div>
+
+            <div style="margin-left: 20px;">
+                <el-button @click="toggleFavorite" :style="{ color: isFavorited ? 'red' : 'black' }" :icon="'Star'">
+                    <p>收藏</p>
+                </el-button>
+            </div>
+
+        </div>
+
         <div class="right-side">
             <el-form :model="productForm" label-width="10%" style="height: 100%;width: 100%;">
                 <el-form-item label="商品名称" style="display: flex; align-items: center; height: 5%;">
@@ -104,30 +129,6 @@
             </el-form>
         </div>
 
-        <div class="left-side">
-            <div class="large-image">
-                <img :src="images[currentIndex]" alt="Large Image" />
-            </div>
-
-            <div class="image-switcher">
-                <div class="thumbnail-container">
-                    <el-button @click="prevImage" icon="ArrowLeftBold" class="arrow-button"></el-button>
-                    <div class="thumbnails">
-                        <img v-for="(image, index) in images" :key="index" :src="image" @click="setCurrentImage(index)"
-                            :class="{ active: index === currentIndex }" class="thumbnail" alt="Thumbnail" />
-                    </div>
-                    <el-button @click="nextImage" icon="ArrowRightBold" class="arrow-button"></el-button>
-                </div>
-
-            </div>
-
-            <div style="margin-left: 20px;">
-                <el-button @click="toggleFavorite" :style="{ color: isFavorited ? 'red' : 'black' }" :icon="'Star'">
-                    <p>收藏</p>
-                </el-button>
-            </div>
-
-        </div>
     </div>
 </template>
 
