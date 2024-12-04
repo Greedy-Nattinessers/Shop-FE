@@ -35,7 +35,7 @@
             </el-form-item>
 
             <el-form-item style="display: flex; justify-content: space-between;">
-                <el-button style="color: white; background-color: red;" @click="onSubmit">确认修改</el-button>
+                <el-button style="color: white; background-color: red;" @click="">确认修改</el-button>
             </el-form-item>
 
         </div>
@@ -44,12 +44,12 @@
 
         <div class="right-side">
             <div class="avatar-container">
-                <el-avatar :src="circleUrl" class="avatar"></el-avatar>
+                <el-avatar class="avatar"></el-avatar>
             </div>
             <div style="display: flex; justify-content: center; align-items: flex-start;">
                 <el-button>更改头像</el-button>
             </div>
-            <div style="display: flex; justify-content: flex-end; margin-right: 20px; margin-top: 80px;">
+            <div style="display: flex; justify-content: flex-end; margin-right: 20px; margin-top: 60px;">
                 <el-button style="color: white; background-color: red;" @click="goBack">返回</el-button>
             </div>
         </div>

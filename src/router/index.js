@@ -25,11 +25,6 @@ const router = createRouter({
       component: () => import('../views/Order.vue'),
     },
     {
-      path: '/ShoppingCart',
-      name: 'ShoppingCart',
-      component: () => import('../views/ShoppingCart.vue'),
-    },
-    {
       path: '/UserInfo',
       name: 'UserInfo',
       component: () => import('../views/userInfo.vue'),
@@ -38,6 +33,7 @@ const router = createRouter({
       path: '/ChangeUserInfo',
       name: 'ChangeUserInfo',
       component: () => import('../views/changeUserInfo.vue'),
+      redirect: '/ChangeUserInfo/ChangePersonalInfo',
       children: [
         {
           path: 'ChangePersonalInfo',
@@ -52,10 +48,10 @@ const router = createRouter({
       ]
     },
     {
-      path: '/Main',
-      name: 'Main',
-      component: () => import('../views/main.vue'),
-    }
+      path: '/CommodityDetail',
+      name: 'CommodityDetail',
+      component: () => import('../views/commodityDetail.vue'),
+    },
   ],
 })
 

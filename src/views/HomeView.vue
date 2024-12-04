@@ -4,6 +4,7 @@
   <button @click="handleFavor">收藏</button>
   <button @click="handleOrder">订单</button>
   <button @click="handleUserInfo">用户信息</button>
+  <button @click="handleCommodityDetail">商品详情</button>
 
 </template>
 
@@ -13,7 +14,7 @@ import { useRouter } from 'vue-router';
 const router = useRouter()
 
 const handleLogin = () => {
-  router.push('/Login')
+  router.push('Login')
 };
 const handleFavor = () => {
   router.push('/Favor')
@@ -23,6 +24,9 @@ const handleOrder = () => {
 };
 const handleUserInfo = () => {
   router.push('/UserInfo')
+};
+const handleCommodityDetail = () => {
+  router.push('/CommodityDetail')
 };
 
 </script>

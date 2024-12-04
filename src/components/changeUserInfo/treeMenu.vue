@@ -1,6 +1,7 @@
 <template>
     <div>
-        <el-menu class="vertical-menu" v-model="activeMenu" @select="handleSelect" mode="vertical"  :default-active="activeMenu">
+        <el-menu class="vertical-menu" v-model="activeMenu" @select="handleSelect" mode="vertical"
+            :default-active="activeMenu">
             <div class="menu-container">
                 <h3 class="menu-title">账户中心</h3>
             </div>
@@ -11,7 +12,7 @@
 </template>
 
 <script setup>
-import { ref,onMounted } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { ElMenu } from 'element-plus';
 
@@ -32,6 +33,17 @@ const handleSelect = (index) => {
         router.push('/ChangeUserInfo/ChangePassword')
     }
 };
+
+// 注册导航钩子
+router.beforeEach((to, from, next) => {
+    if (router.path === '/ChangeUserInfo') {
+        console.log("1");
+        next(false);
+    } else {
+        next();
+    }
+});
+
 </script>
 
 <style scoped>
