@@ -1,4 +1,5 @@
 <template>
+  <Topnav></Topnav>
     <div class="container">
         <div class="left-side">
             <div class="large-image">
@@ -130,11 +131,14 @@
         </div>
 
     </div>
+  <downnav></downnav>
 </template>
 
 <script setup>
 import { ref, reactive, computed } from 'vue';
 import { ElButton, ElForm, ElMessage, ElDialog, ElInput } from 'element-plus';
+import Topnav from "@/components/Topnav.vue";
+import Downnav from "@/components/Downnav.vue";
 
 //产品展示逻辑
 const currentIndex = ref(0);

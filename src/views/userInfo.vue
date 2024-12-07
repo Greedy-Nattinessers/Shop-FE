@@ -1,4 +1,5 @@
 <template>
+    <Topnav2 viewName="用户信息"></Topnav2>
     <img src="/userInfoBack.png" alt="Header Image" class="header-image" />
     <el-container class="info-header">
         <div class="avatar-container">
@@ -28,6 +29,7 @@
             </div>
         </el-main>
     </el-container>
+    <Downnav></Downnav>
 
 </template>
 
@@ -35,6 +37,8 @@
 import { reactive } from 'vue';
 import { useRouter } from 'vue-router';
 import { ElContainer, ElMain, ElHeader, ElAvatar,ElButton } from 'element-plus';
+import Topnav2 from "@/components/Topnav2.vue";
+import Downnav from "@/components/Downnav.vue";
 
 const circleUrl = '/back.png'; // 公共文件夹下的头像地址
 

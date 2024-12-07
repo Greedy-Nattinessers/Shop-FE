@@ -1,5 +1,9 @@
 <script>
+import Topnav2 from "@/components/Topnav2.vue";
+import Downnav from "@/components/Downnav.vue";
+
 export default {
+  components: {Downnav, Topnav2},
   data(){
     return {
       orders:[
@@ -46,6 +50,7 @@ export default {
 </script>
 
 <template>
+  <Topnav2 viewName="我的订单"></Topnav2>
   <body>
     <table id="orders">
       <tr id="head">
@@ -77,6 +82,7 @@ export default {
       </tr>
       </template>
     </table>
+    <Downnav></Downnav>
   </body>
 </template>
 
@@ -87,7 +93,7 @@ td{
 
 body{
   background-color: #f7f7f7;
-  height: 1200px;
+  height: 850px;
 }
 
 #orders{
@@ -97,7 +103,6 @@ body{
   margin:10px 0 0 200px;
   border-collapse: separate;
   border-spacing: 0 25px;
-
 }
 
 #head{

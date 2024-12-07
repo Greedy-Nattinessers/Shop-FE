@@ -1,4 +1,5 @@
 <template>
+  <Topnav2 viewName="收藏夹"></Topnav2>
     <div class="collection-container">
     <div class="header">
         我的收藏
@@ -30,12 +31,15 @@
         />
       </el-col>
     </div>
+  <downnav></downnav>
   </template>
   
   <script setup>
   import { ref, computed } from 'vue';
   import ElementPlus from 'element-plus';
   import 'element-plus/dist/index.css';
+  import Downnav from "@/components/Downnav.vue";
+  import Topnav2 from "@/components/Topnav2.vue";
   
   const collections = ref([
     { id: 1, name: "联想拯救者Y9000P", price: 11000, image: "../../public/Y9000.jpg" },

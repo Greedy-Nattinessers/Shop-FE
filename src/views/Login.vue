@@ -59,6 +59,7 @@
 import { ref, reactive } from 'vue';
 import { Avatar, Lock, Message } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus';
+import Downnav from "@/components/Downnav.vue";
 
 //表单初始数据
 const loginForm = reactive({
