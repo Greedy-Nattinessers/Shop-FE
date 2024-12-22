@@ -1,6 +1,6 @@
 <template>
     <div class="background">
-        <el-row class="login-container" justify="flex-start" align="middle" style="padding-left: 900px;">
+        <el-row class="login-container" justify="start" align="middle" style="padding-left: 900px;">
             <el-card style="max-width: 480px">
 
                 <template #header>
@@ -10,10 +10,11 @@
                 </template>
 
                 <div class="jump-link">
-                    <el-link type="primary" v-if="!forgetType" @click="handleChange">{{ formType ? '返回登录' : '注册账号' }}</el-link>
+                    <el-link type="primary" v-if="!forgetType" @click="handleChange">{{ formType ? '返回登录' : '注册账号'
+                        }}</el-link>
                 </div>
 
-                <el-form :model="loginForm" style="width: 400px" class="demo-ruleForm" :rules="rules">
+                <el-form ref="ElFormRef" :model="loginForm" style="width: 400px" class="demo-ruleForm" :rules="rules">
                     <el-form-item v-if="!forgetType" prop="userName">
                         <el-input v-model="loginForm.userName" placeholder="用户名" :prefix-icon="Avatar"></el-input>
                     </el-form-item>
@@ -21,10 +22,12 @@
                         <el-input v-model="loginForm.passWord" type="password" placeholder="密码" :prefix-icon="Lock" />
                     </el-form-item>
                     <el-form-item v-if="forgetType" prop="newPassWord">
-                        <el-input v-model="loginForm.newPassWord" type="password" placeholder="新密码" :prefix-icon="Lock" />
+                        <el-input v-model="loginForm.newPassWord" type="password" placeholder="新密码"
+                            :prefix-icon="Lock" />
                     </el-form-item>
                     <el-form-item v-if="forgetType" prop="rePassWord">
-                        <el-input v-model="loginForm.rePassWord" type="password" placeholder="再次输入新密码" :prefix-icon="Lock" />
+                        <el-input v-model="loginForm.rePassWord" type="password" placeholder="再次输入新密码"
+                            :prefix-icon="Lock" />
                     </el-form-item>
                     <el-form-item v-if="formType || forgetType" prop="emailAddress">
                         <el-input v-model="loginForm.emailAddress" placeholder="电子邮箱地址"
@@ -39,11 +42,12 @@
                     </el-form-item>
 
                     <div class="jump-link">
-                        <el-link type="primary" v-if="!formType" @click="handleForget">{{ forgetType ? '返回登录' : '忘记密码' }}</el-link>
+                        <el-link type="primary" v-if="!formType" @click="handleForget">{{ forgetType ? '返回登录' : '忘记密码'
+                            }}</el-link>
                     </div>
 
                     <el-form-item prop="validCode">
-                        <el-button type="danger" :style="{ width: '100%' }" @clcik="submitForm">
+                        <el-button type="danger" :style="{ width: '100%' }" @click="submitForm">
                             {{ formType ? '注册账号' : (forgetType ? '确认更改密码' : '登录') }}
                         </el-button>
                     </el-form-item>
@@ -59,7 +63,7 @@
 import { ref, reactive } from 'vue';
 import { Avatar, Lock, Message } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus';
-import Downnav from "@/components/Downnav.vue";
+import userApi from '@/apis/user'; // 导入整个 userApi 对象
 
 //表单初始数据
 const loginForm = reactive({
@@ -77,8 +81,6 @@ const forgetType = ref(0)
 const handleForget = () => {
     forgetType.value = forgetType.value ? 0 : 1
 }
-
-
 // 切换注册和登录（0 登录， 1 注册）
 const formType = ref(0)
 //点击切换登录和注册
@@ -91,69 +93,149 @@ const validateUser = (rule, value, callback) => {
     //不能为空
     if (value === '') {
         callback(new Error('请输入账号'))
-    } else {
-        const userNameValid = false
-        userNameValid ? callback() : callback(new Error('请输入正确的手机号'))
     }
 }
-
 //密码校验
 const vaildatePass = (rule, value, callback) => {
     //不能为空
     if (value === '') {
         callback(new Error('请输入密码'))
-    } else {
-        const passWordValid = false
-        userNameValid ? callback() : callback(new Error('请输入正确的密码'))
     }
 }
-
 //表单校验
 const rules = reactive({
-    userName: [{ vaildator: validateUser, trigger: 'blur' }],
-    passWord: [{ vaildator: vaildatePass, trigger: 'blur' }]
-})
+    userName: [{ validator: validateUser, trigger: 'blur' }],
+    passWord: [{ validator: vaildatePass, trigger: 'blur' }]
+});
 
 // //发送邮箱验证码
 const countDown = reactive({
     validText: '获取验证码',
     time: 60
-})
-
-//验证码重发
+});
+// 验证码发送
 const flag = ref(false);
-const emailValid = ref(false);
-const countDownChange = () => {
-    //如果已发送不处理
-    if (flag.value) return
-    if (!(loginForm.userName && emailValid.value)) {
+const countDownChange = async () => {
+    if (flag.value) return; // 如果正在倒计时，则不再执行
+    if (!(loginForm.userName && loginForm.emailAddress)) {
         return ElMessage({
             message: '请检查用户名或邮箱是否正确',
             type: 'warning',
-        })
+        });
     }
-    //倒计时
-    const time = setInterval(() => {
-        if (countDown.time <= 0) {
-            countDown.time = 60
-            countDown.validText = `获取验证码`
-            flag.value = false
-            clearInterval(time)
-        } else {
-            countDown.time -= 1
-            countDown.validText = `剩余${countDown.time}s`
+
+    try {
+        let response = null;
+        if (formType.value === 1) {
+            response = await userApi.registerCaptcha(loginForm.emailAddress); // 调用注册发送验证码的 API
         }
-    }, 1000)
-    flag.value = true
+        else {
+            response = await userApi.recoverCaptcha(loginForm.emailAddress); // 调用忘记密码发送验证码的 API
+        }
+        console.log('验证码发送响应:', response); // 输出响应信息
+        if (response.status_code === 200) {
+            ElMessage({
+                message: '验证码已发送，请检查您的邮箱',
+                type: 'success',
+            });
+        } else {
+            throw new Error(response.message); // 如果状态码不是200，抛出错误
+        }
+    } catch (error) {
+        console.error('发送验证码失败:', error); // 输出错误信息
+        return ElMessage({
+            message: '发送验证码失败，请稍后再试',
+            type: 'error',
+        });
+    }
+
+    // 开始倒计时
+    countDown.time = 60; // 重置倒计时
+    countDown.validText = `请等待 ${countDown.time} 秒`;
+
+    const intervalId = setInterval(() => {
+        countDown.time--;
+        if (countDown.time <= 0) {
+            clearInterval(intervalId);
+            flag.value = false; // 允许重新申请
+            countDown.validText = '获取验证码'; // 重置按钮文本
+        } else {
+            countDown.validText = `请等待 ${countDown.time} 秒`;
+        }
+    }, 1000);
+
+    flag.value = true; // 设置为正在倒计时
 }
 
 //表单提交
-const submitForm = () => {
+const submitForm = async () => {
+    try {
+        let response;
 
+        if (formType.value === 0) { // 登录
+            // 构建登录请求的参数
+            const loginParams = {
+                username: loginForm.userName,
+                password: loginForm.passWord,
+                // client_id: loginForm.client_id, // 如果有的话
+                // client_secret: loginForm.client_secret, // 如果有的话
+                // scope: loginForm.scope, // 如果有的话
+                // grant_type: 'password', // 固定值
+            };
+
+            response = await userApi.login(loginParams);
+            ElMessage.success('登录成功！');
+            router.push('/home'); // 确保引入了 router
+
+        } else if (formType.value === 1) { // 注册
+            // 构建注册请求的参数
+            const registerParams = {
+                email: loginForm.emailAddress,
+                username: loginForm.userName,
+                password: loginForm.passWord,
+                captcha: loginForm.validCode
+            };// 确保在表单中获取验证码
+            ElMessage.success('注册成功！');
+
+        } else if (forgetType.value) { // 忘记密码
+
+            const recoverParams = {
+                email: loginForm.emailAddress, // 确保使用正确的字段名
+                password: loginForm.newPassWord, // 假设有一个新的密码字段
+                captcha: loginForm.validCode // 确保在表单中获取验证码
+            };
+
+            response = await userApi.recover(recoverParams, generateRequestId());
+            if (response.status === 200) {
+                ElMessage.success('密码更改成功！');
+                router.push('/login'); // 密码更改成功后跳转到登录页
+            }
+        }
+
+        // 重置表单
+        resetForm();
+
+    } catch (error) {
+        ElMessage.error('操作失败：' + error.message);
+    }
+}
+
+
+// 生成 requestId 的函数
+const generateRequestId = () => {
+    return 'req-' + Math.random().toString(36).substr(2, 9);
+}
+// 表单重置函数
+const resetForm = () => {
+    loginForm.userName = '';
+    loginForm.passWord = '';
+    loginForm.newPassWord = '';
+    loginForm.rePassWord = '';
+    loginForm.emailAddress = '';
+    loginForm.validCode = '';
 }
 
 </script>
-
 <style scoped>
 .background {
     background-image: url('../../../public/back.png');

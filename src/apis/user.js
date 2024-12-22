@@ -3,7 +3,7 @@ import {AxiosHeaders} from "axios";
 
 const login = async (loginForm) => {
     const response = await postFormData('/user/login', loginForm)
-    if (response.status !== 200) {
+    if (response.status_code !== 200) {
         console.error(response)
         return Promise.reject(response)
     }
@@ -12,7 +12,7 @@ const login = async (loginForm) => {
 
 const registerCaptcha = async (email) => {
     const response = await get(`/user/captcha/register`, {email})
-    if (response.status !== 200) {
+    if (response.status_code !== 200) {
         console.error(response)
         return Promise.reject(response)
     }
@@ -23,7 +23,7 @@ const register = async (registerForm, requestId) => {
     const headers = new AxiosHeaders()
     headers.set('request-id', requestId)
     const response = await postFormData('/user/register', registerForm, headers)
-    if (response.status !== 201) {
+    if (response.status_code !== 201) {
         console.error(response)
         return Promise.reject(response)
     }
@@ -32,7 +32,7 @@ const register = async (registerForm, requestId) => {
 
 const recoverCaptcha = async (email) => {
     const response = await get(`/user/captcha/recover`, {email})
-    if (response.status !== 200) {
+    if (response.status_code !== 200) {
         console.error(response)
         return Promise.reject(response)
     }

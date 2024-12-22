@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-export const ServerURL = "http://localhost:8123";
+export const ServerURL = "http://localhost:8000";
 
 const requests = axios.create({
     baseURL: ServerURL,
