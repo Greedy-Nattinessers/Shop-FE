@@ -16,6 +16,7 @@ const registerCaptcha = async (email) => {
         console.error(response)
         return Promise.reject(response)
     }
+    
     return response
 }
 
@@ -27,6 +28,7 @@ const register = async (registerForm, requestId) => {
         console.error(response)
         return Promise.reject(response)
     }
+    console.log(response.message)
     return response
 }
 
@@ -44,7 +46,7 @@ const recover = async (recoverForm, requestId) => {
     const headers = new AxiosHeaders()
     headers.set('request-id', requestId)
     const response = await postFormData('/user/recover', recoverForm, headers)
-    if (response.status !== 200) {
+    if (response.status_code !== 200) {
         console.error(response)
         return Promise.reject(response)
     }

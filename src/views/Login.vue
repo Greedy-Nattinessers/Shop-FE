@@ -61,9 +61,12 @@
 
 <script setup>
 import { ref, reactive } from 'vue';
+import { useRouter } from 'vue-router';
 import { Avatar, Lock, Message } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus';
 import userApi from '@/apis/user'; // 导入整个 userApi 对象
+
+const router = useRouter()
 
 //表单初始数据
 const loginForm = reactive({
@@ -133,6 +136,9 @@ const countDownChange = async () => {
             response = await userApi.recoverCaptcha(loginForm.emailAddress); // 调用忘记密码发送验证码的 API
         }
         console.log('验证码发送响应:', response); // 输出响应信息
+        requestid = response.data
+        console.log(response)
+
         if (response.status_code === 200) {
             ElMessage({
                 message: '验证码已发送，请检查您的邮箱',
@@ -167,12 +173,13 @@ const countDownChange = async () => {
     flag.value = true; // 设置为正在倒计时
 }
 
+let requestid = '';
 //表单提交
 const submitForm = async () => {
     try {
         let response;
 
-        if (formType.value === 0) { // 登录
+        if (!formType.value&&!forgetType.value) { // 登录
             // 构建登录请求的参数
             const loginParams = {
                 username: loginForm.userName,
@@ -185,9 +192,9 @@ const submitForm = async () => {
 
             response = await userApi.login(loginParams);
             ElMessage.success('登录成功！');
-            router.push('/home'); // 确保引入了 router
+            router.push('/main'); // 确保引入了 router
 
-        } else if (formType.value === 1) { // 注册
+        } else if (formType.value) { // 注册
             // 构建注册请求的参数
             const registerParams = {
                 email: loginForm.emailAddress,
@@ -195,21 +202,23 @@ const submitForm = async () => {
                 password: loginForm.passWord,
                 captcha: loginForm.validCode
             };// 确保在表单中获取验证码
+
+            response = await userApi.register(registerParams, requestid);
+
+            // response = await userApi.register(registerParams, generateRequestId());
             ElMessage.success('注册成功！');
+            formType.value = 0;
 
         } else if (forgetType.value) { // 忘记密码
-
             const recoverParams = {
                 email: loginForm.emailAddress, // 确保使用正确的字段名
                 password: loginForm.newPassWord, // 假设有一个新的密码字段
                 captcha: loginForm.validCode // 确保在表单中获取验证码
             };
-
-            response = await userApi.recover(recoverParams, generateRequestId());
-            if (response.status === 200) {
-                ElMessage.success('密码更改成功！');
-                router.push('/login'); // 密码更改成功后跳转到登录页
-            }
+            console.log(recoverParams)
+            response = await userApi.recover(recoverParams, requestid);
+            ElMessage.success('密码更改成功！');
+            forgetType.value = 0; 
         }
 
         // 重置表单
@@ -220,11 +229,6 @@ const submitForm = async () => {
     }
 }
 
-
-// 生成 requestId 的函数
-const generateRequestId = () => {
-    return 'req-' + Math.random().toString(36).substr(2, 9);
-}
 // 表单重置函数
 const resetForm = () => {
     loginForm.userName = '';
