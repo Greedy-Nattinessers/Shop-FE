@@ -5,8 +5,11 @@ const useUserStore = defineStore('user', {
     state: () => ({
         uid: undefined,
         username: undefined,
+        password: undefined,
         email: undefined,
         permission: undefined,
+        birthday: undefined,
+        gender: undefined
     }),
     getters: {
         userInfo(state) {
@@ -28,7 +31,7 @@ const useUserStore = defineStore('user', {
                 const token = res.data.access_token
                 localStorage.setItem('token', token)
                 return true
-            } catch {
+            } catch(error) {
                 return false
             }
         },
@@ -44,6 +47,15 @@ const useUserStore = defineStore('user', {
             } catch {
                 return false
             }
+        },
+
+        changePassword(newPassword) {
+            if (!this.isLogin()) {
+                return false
+            }
+            this.password = newPassword;
+            return true
+            
         },
 
         async logout() {

@@ -2,7 +2,7 @@
     <el-header class="header-title">
         <h3>个人信息</h3>
     </el-header>
-    <el-form :model="userInfo" label-width="auto" class="form">
+    <el-form :model="userInfo" label-width="100px" class="form">
         <div class="left-side">
             <el-form-item label="用户名:">
                 {{ userInfo.username }}
@@ -12,34 +12,34 @@
                 {{ userInfo.email }}
             </el-form-item>
 
-            <el-form-item label="昵称:">
-                <el-input v-model="userInfo.nickname" />
-            </el-form-item>
-
             <el-form-item label="性别:">
                 <el-radio-group v-model="userInfo.gender">
-                    <el-radio value="男">男</el-radio>
-                    <el-radio value="女">女</el-radio>
-                    <el-radio value="保密">保密</el-radio>
+                    <el-radio :value="1">男</el-radio>
+                    <el-radio :value="0">女</el-radio>
                 </el-radio-group>
             </el-form-item>
 
             <el-form-item label="生日">
                 <el-col :span="11">
-                    <el-date-picker v-model="userInfo.birthday" type="date" style="width: 100%" />
+                    <el-date-picker v-model="userInfo.birthday" type="date"  style="width: 60%" />
                 </el-col>
             </el-form-item>
+
 
             <el-form-item label="收货地址:">
                 <el-input v-model="userInfo.address" />
             </el-form-item>
 
-            <el-form-item style="display: flex; justify-content: space-between;">
-                <el-button style="color: white; background-color: red;" @click="">确认修改</el-button>
+            <el-form-item>
+                <div style="display: flex; justify-content: space-between; width: 100%;">
+                    <el-button style="color: white; background-color: red;" @click="submit">确认修改</el-button>
+                    <el-button style="color: white; background-color: red;" @click="goBack">返回</el-button>
+                </div>
             </el-form-item>
 
-        </div>
 
+        </div>
+        <!-- 
         <div class="divider"></div>
 
         <div class="right-side">
@@ -49,10 +49,7 @@
             <div style="display: flex; justify-content: center; align-items: flex-start;">
                 <el-button>更改头像</el-button>
             </div>
-            <div style="display: flex; justify-content: flex-end; margin-right: 20px; margin-top: 60px;">
-                <el-button style="color: white; background-color: red;" @click="goBack">返回</el-button>
-            </div>
-        </div>
+        </div> -->
 
     </el-form>
 </template>
@@ -60,21 +57,47 @@
 <script setup>
 import { reactive } from 'vue';
 import { useRouter } from 'vue-router';
-import { ElHeader, ElForm, ElButton, ElRadio, ElRadioGroup, ElInput, ElCol, ElDatePicker } from 'element-plus';
+import { ElHeader, ElForm, ElButton, ElRadio, ElRadioGroup, ElInput, ElCol, ElDatePicker,ElMessage } from 'element-plus';
+import useUserStore from '@/stores/user';
+import userApi from '@/apis/user'; // 导入整个 userApi 对象
 
 const router = useRouter()
+const userStore = useUserStore()
 
 const userInfo = reactive({
-    nickname: '用户的昵称',
-    username: '用户名',
-    gender: '男',
-    birthday: new Date(1990, 0, 1),
-    email: '用户的邮箱',
+    username: userStore.username,
+    gender: userStore.gender,
+    birthday: userStore.birthday,
+    email: userStore.email,
     address: '用户的收货地址',
 });
 
+const convertDate = (date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+}
+
+const submit = async () => {
+    const userInfoParams = {
+        birthday: convertDate(new Date(userInfo.birthday)), // 假设这里需要将用户的生日转换为字符串格式
+        gender: userInfo.gender,
+        password: userStore.password, // 这里假设你想要提交用户的密码
+        permission: userStore.permission // 权限字段
+    };
+
+    try {
+        await userApi.updateProfile(userInfoParams, userStore.uid); // 传入用户ID
+        ElMessage.success('修改成功！');
+    } catch (error) {
+        console.error('更新失败：', error); // 打印错误信息
+        ElMessage.error('修改失败，请重试！');
+    }
+}
+
 const goBack = () => {
-    router.push('/UserInfo')
+    router.push('/login')
 }
 
 </script>

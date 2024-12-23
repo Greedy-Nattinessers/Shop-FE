@@ -28,7 +28,6 @@ const register = async (registerForm, requestId) => {
         console.error(response)
         return Promise.reject(response)
     }
-    console.log(response.message)
     return response
 }
 
@@ -53,11 +52,9 @@ const recover = async (recoverForm, requestId) => {
     return response
 }
 
-
 const profile = async () => {
     const response = await get('/user/profile')
-    if (response.status !== 200) {
-        console.error(response)
+    if (response.status_code !== 200) {
         return Promise.reject(response)
     }
     return response
@@ -65,7 +62,7 @@ const profile = async () => {
 
 const updateProfile = async (profile, uid) => {
     const response = await put(`/user/profile/${uid}`, profile)
-    if (response.status !== 200) {
+    if (response.status_code !== 200) {
         console.error(response)
         return Promise.reject(response)
     }

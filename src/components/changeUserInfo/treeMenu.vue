@@ -37,11 +37,24 @@ const handleSelect = (index) => {
 // 注册导航钩子
 router.beforeEach((to, from, next) => {
     if (router.path === '/ChangeUserInfo') {
-        console.log("1");
         next(false);
     } else {
         next();
     }
+});
+
+const updateActiveMenu = () => {
+    const path = router.currentRoute.value.path;
+    if (path.includes('ChangePersonalInfo')) {
+        activeMenu.value = '1';
+    } else if (path.includes('ChangePassword')) {
+        activeMenu.value = '2';
+    }
+};
+
+// 监听路由变化
+router.afterEach(() => {
+    updateActiveMenu();
 });
 
 </script>

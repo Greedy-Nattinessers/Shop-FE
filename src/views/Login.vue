@@ -60,13 +60,15 @@
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue';
+import { ref, reactive, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { Avatar, Lock, Message } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus';
 import userApi from '@/apis/user'; // 导入整个 userApi 对象
+import useUserStore from '@/stores/user/index';
 
-const router = useRouter()
+const router = useRouter();
+const userStore = useUserStore();
 
 //表单初始数据
 const loginForm = reactive({
@@ -75,6 +77,7 @@ const loginForm = reactive({
     newPassWord: '',
     rePassWord: '',
     emailAddress: '',
+    gender: '1',
     validCode: ''
 })
 
@@ -176,57 +179,66 @@ const countDownChange = async () => {
 let requestid = '';
 //表单提交
 const submitForm = async () => {
-    try {
-        let response;
-
-        if (!formType.value&&!forgetType.value) { // 登录
-            // 构建登录请求的参数
+    let response;
+    let profile;
+    if (!formType.value && !forgetType.value) { // 登录
+        // 构建登录请求的参数
+        try {
             const loginParams = {
                 username: loginForm.userName,
                 password: loginForm.passWord,
-                // client_id: loginForm.client_id, // 如果有的话
-                // client_secret: loginForm.client_secret, // 如果有的话
-                // scope: loginForm.scope, // 如果有的话
-                // grant_type: 'password', // 固定值
             };
 
-            response = await userApi.login(loginParams);
+            await userApi.login(loginParams);
             ElMessage.success('登录成功！');
-            router.push('/main'); // 确保引入了 router
-
-        } else if (formType.value) { // 注册
-            // 构建注册请求的参数
-            const registerParams = {
-                email: loginForm.emailAddress,
-                username: loginForm.userName,
-                password: loginForm.passWord,
-                captcha: loginForm.validCode
-            };// 确保在表单中获取验证码
-
+            await userStore.login({ username: loginParams.username, password: loginParams.password });
+            await userStore.update();
+            userStore.changePassword(loginParams.password);
+            router.push('/changeuserinfo/changepassword'); 
+        }
+        catch {
+            ElMessage.error('登录失败，请检查用户名和密码是否正确！');
+        }
+    } else if (formType.value) { // 注册
+        // 构建注册请求的参数
+        const registerParams = {
+            email: loginForm.emailAddress,
+            username: loginForm.userName,
+            password: loginForm.passWord,
+            gender: loginForm.gender,
+            captcha: loginForm.validCode
+        };// 确保在表单中获取验证码
+        try {
             response = await userApi.register(registerParams, requestid);
-
-            // response = await userApi.register(registerParams, generateRequestId());
             ElMessage.success('注册成功！');
             formType.value = 0;
-
-        } else if (forgetType.value) { // 忘记密码
-            const recoverParams = {
-                email: loginForm.emailAddress, // 确保使用正确的字段名
-                password: loginForm.newPassWord, // 假设有一个新的密码字段
-                captcha: loginForm.validCode // 确保在表单中获取验证码
-            };
-            console.log(recoverParams)
-            response = await userApi.recover(recoverParams, requestid);
-            ElMessage.success('密码更改成功！');
-            forgetType.value = 0; 
+        }
+        catch (error) {
+            if (error.status === 400) {
+                ElMessage.error('注册失败，请检查验证码是否正确！');
+            }
+            else {
+                ElMessage.error('注册失败，用户已注册！');
+            }
         }
 
-        // 重置表单
-        resetForm();
-
-    } catch (error) {
-        ElMessage.error('操作失败：' + error.message);
+    } else if (forgetType.value) { // 忘记密码
+        const recoverParams = {
+            email: loginForm.emailAddress, 
+            password: loginForm.newPassWord, 
+            captcha: loginForm.validCode 
+        };
+        try {
+            await userApi.recover(recoverParams, requestid);
+            ElMessage.success('密码更改成功！');
+            forgetType.value = 0;
+        }
+        catch {
+            ElMessage.error('修改失败！请检查验证码是否正确！');
+        }
     }
+    // 重置表单
+    resetForm();
 }
 
 // 表单重置函数

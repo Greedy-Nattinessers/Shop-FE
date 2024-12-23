@@ -1,5 +1,5 @@
 <template>
-    <Topnav2 viewName="用户信息"></Topnav2>
+    <!-- <Topnav2 viewName="用户信息"></Topnav2> -->
     <img src="/userInfoBack.png" alt="Header Image" class="header-image" />
     <el-container class="info-header">
         <div class="avatar-container">
@@ -19,11 +19,10 @@
         <el-main>
             <div>
                 <div class="user-info">
-                    <div class="info-item"> 昵称: <strong>{{ userInfo.nickname }}</strong></div>
-                    <div class="info-item">用户名: <strong>{{ userInfo.username }}</strong></div>
-                    <div class="info-item">性别: <strong>{{ userInfo.gender }}</strong></div>
-                    <div class="info-item">生日: <strong>{{ userInfo.birthday }}</strong></div>
-                    <div class="info-item">邮箱: <strong>{{ userInfo.email }}</strong></div>
+                    <div class="info-item">用户名: <strong>{{ userStore.username }}</strong></div>
+                    <div class="info-item">性别: <strong>{{ userStore.gender ? '男' : '女' }}</strong></div>
+                    <div class="info-item">生日: <strong>{{ useStore.birthday ? useStore.birthday:'未设置' }}</strong></div>
+                    <div class="info-item">邮箱: <strong>{{ userStore.email }}</strong></div>
                     <div class="info-item">收货地址: <strong>{{ userInfo.address }}</strong></div>
                 </div>
             </div>
@@ -34,23 +33,25 @@
 </template>
 
 <script setup>
-import { reactive } from 'vue';
+import { reactive, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { ElContainer, ElMain, ElHeader, ElAvatar,ElButton } from 'element-plus';
+import useUserStore from '@/stores/user/index';
 import Topnav2 from "@/components/Topnav2.vue";
 import Downnav from "@/components/Downnav.vue";
+import { useStore } from 'vuex';
 
 const circleUrl = '/back.png'; // 公共文件夹下的头像地址
 
+const userStore = useUserStore();
 const router = useRouter()
 
 const userInfo = reactive({
-    nickname: '用户的昵称',
-    username: '111',
-    gender: '男11',
-    birthday: '111',
-    email: '111',
-    address: '111',
+    username: '',
+    gender: '',
+    birthday: '',
+    email: '',
+    address: '',
 });
 
 const handleChangeUserInfo = () => {
