@@ -233,8 +233,12 @@ const submitForm = async () => {
             ElMessage.success('密码更改成功！');
             forgetType.value = 0;
         }
-        catch {
-            ElMessage.error('修改失败！请检查验证码是否正确！');
+        catch(error) {
+            if(error.status === 404){
+                ElMessage.error('用户未注册！');
+            }else{
+                ElMessage.error('修改失败！请检查验证码是否正确！');
+            }
         }
     }
     // 重置表单

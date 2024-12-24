@@ -21,13 +21,80 @@
 
             <el-form-item label="生日">
                 <el-col :span="11">
-                    <el-date-picker v-model="userInfo.birthday" type="date"  style="width: 60%" />
+                    <el-date-picker v-model="userInfo.birthday" type="date" style="width: 60%" />
                 </el-col>
             </el-form-item>
 
 
-            <el-form-item label="收货地址:">
-                <el-input v-model="userInfo.address" />
+            <el-form-item label="收货地址:" style="margin-top: 10px;width: 97%;">
+                <el-table :data="addresses" style="width: 100%">
+                    <el-table-column prop="name" label="姓名" width="150" />
+                    <el-table-column prop="phone" label="电话号码" width="250" />
+                    <el-table-column prop="address" label="收货地址" />
+                    <el-table-column label="操作" width="200">
+                        <template #default="scope">
+                            <el-button plain type="primary" style="margin-top: 0px;margin-right: 2px;"
+                                @click="handleEdit(scope.row)">编辑</el-button>
+                            <el-dialog v-model="editDialogVisible" title="编辑地址" width="500">
+                                <h3>请修改您的地址信息</h3>
+                                <el-form :model="currentAddress" label-width="auto" style="max-width: 600px">
+                                    <el-form-item label="姓名">
+                                        <el-input v-model="currentAddress.name" />
+                                    </el-form-item>
+                                    <el-form-item label="电话号码">
+                                        <el-input v-model="currentAddress.phone" />
+                                    </el-form-item>
+                                    <el-form-item label="详细地址">
+                                        <el-input v-model="currentAddress.address" type="textarea" />
+                                    </el-form-item>
+                                    <el-form-item label="设为默认地址">
+                                        <el-switch v-model="currentAddress.is_default" />
+                                    </el-form-item>
+                                </el-form>
+                                <template #footer>
+                                    <div class="dialog-footer">
+                                        <el-button @click="editDialogVisible = false">取消</el-button>
+                                        <el-button @click="handleEditSubmit"
+                                            style="margin-left: 10px;color: white; background-color: red;">
+                                            确认
+                                        </el-button>
+                                    </div>
+                                </template>
+                            </el-dialog>
+                            <el-button plain type="danger" style="margin-top: 0px;"
+                                @click="handleDelete(scope.row)">删除</el-button>
+                        </template>
+                    </el-table-column>
+                </el-table>
+                <el-button @click="dialogVisible = true" style="margin-top: 10px;">添加收货地址</el-button>
+
+                <el-dialog v-model="dialogVisible" title="添加地址" width="500">
+                    <h3>请输入想要添加的地址信息</h3>
+                    <el-form :model="userInfo.addAddress" label-width="auto" style="max-width: 600px">
+                        <el-form-item label="姓名">
+                            <el-input v-model="userInfo.addAddress.name" />
+                        </el-form-item>
+                        <el-form-item label="电话号码">
+                            <el-input v-model="userInfo.addAddress.phone" />
+                        </el-form-item>
+                        <el-form-item label="详细地址">
+                            <el-input v-model="userInfo.addAddress.address" type="textarea" />
+                        </el-form-item>
+                        <el-form-item label="设为默认地址">
+                            <el-switch v-model="userInfo.addAddress.is_default" />
+                        </el-form-item>
+                    </el-form>
+                    <template #footer>
+                        <div class="dialog-footer">
+                            <el-button @click="dialogVisible = false">取消</el-button>
+                            <el-button @click="handleAdd"
+                                style="margin-left: 10px;color: white; background-color: red;">
+                                确认
+                            </el-button>
+                        </div>
+                    </template>
+                </el-dialog>
+
             </el-form-item>
 
             <el-form-item>
@@ -55,22 +122,74 @@
 </template>
 
 <script setup>
-import { reactive } from 'vue';
+import { reactive, onMounted, ref } from 'vue';
+import { storeToRefs } from 'pinia'
 import { useRouter } from 'vue-router';
-import { ElHeader, ElForm, ElButton, ElRadio, ElRadioGroup, ElInput, ElCol, ElDatePicker,ElMessage } from 'element-plus';
+import { ElHeader, ElForm, ElButton, ElRadio, ElRadioGroup, ElInput, ElCol, ElDatePicker, ElMessage } from 'element-plus';
 import useUserStore from '@/stores/user';
 import userApi from '@/apis/user'; // 导入整个 userApi 对象
 
 const router = useRouter()
 const userStore = useUserStore()
+const { addresses } = storeToRefs(userStore)
+const currentAddress = ref(null); // 新的响应式变量
+
+onMounted(async () => {
+    await userStore.fetchAddresses();
+});
 
 const userInfo = reactive({
     username: userStore.username,
     gender: userStore.gender,
     birthday: userStore.birthday,
     email: userStore.email,
-    address: '用户的收货地址',
+    addresses: addresses.value,
+    addAddress: {
+        name: '1',
+        phone: '1',
+        address: '1',
+        is_default: true
+    },
 });
+
+const dialogVisible = ref(false)
+const handleAdd = async () => {
+    await userStore.addAddress(userInfo.addAddress)
+    userInfo.addAddress.name = '1'
+    userInfo.addAddress.phone = '1'
+    userInfo.addAddress.addAddress = '1'
+    dialogVisible.value = false;
+}
+
+const editDialogVisible = ref(false)
+const handleEdit = async (row) => {
+    currentAddress.value = { ...row }; 
+    editDialogVisible.value = true;
+}
+
+const handleEditSubmit = async () => {
+    const addressParams = {
+        name: currentAddress.value.name,
+        phone: currentAddress.value.phone,
+        address: currentAddress.value.address,
+        is_default: currentAddress.value.is_default
+    };
+
+    try {
+        console.log(currentAddress.value.aid)
+        await userApi.updateAddress(addressParams, currentAddress.value.aid); 
+        ElMessage.success('修改成功！');
+        await userStore.fetchAddresses();
+        editDialogVisible.value  = false;
+    } catch (error) {
+        console.error('更新失败：', error); // 打印错误信息
+        ElMessage.error('修改失败，请重试！');
+    }
+}
+
+const handleDelete = async (row) => {
+    await userStore.deleteAddress(row.aid)
+}
 
 const convertDate = (date) => {
     const year = date.getFullYear();
@@ -111,7 +230,8 @@ const goBack = () => {
 }
 
 .form {
-    height: 50%;
+    height: auto;
+    width: auto;
     padding-left: 20px;
     padding-top: 20px;
     padding-bottom: 20px;

@@ -71,7 +71,7 @@ const updateProfile = async (profile, uid) => {
 
 const address = async () => {
     const response = await get('/user/address')
-    if (response.status !== 200) {
+    if (response.status_code !== 200) {
         console.error(response)
         return Promise.reject(response)
     }
@@ -80,7 +80,7 @@ const address = async () => {
 
 const addAddress = async (address) => {
     const response = await post('/user/address', address)
-    if (response.status !== 201) {
+    if (response.status_code !== 201) {
         console.error(response)
         return Promise.reject(response)
     }
@@ -89,7 +89,7 @@ const addAddress = async (address) => {
 
 const updateAddress = async (address, aid) => {
     const response = await put(`/user/address/${aid}`, address)
-    if (response.status !== 200) {
+    if (response.status_code !== 200) {
         console.error(response)
         return Promise.reject(response)
     }
@@ -98,7 +98,7 @@ const updateAddress = async (address, aid) => {
 
 const deleteAddress = async (aid) => {
     const response = await del(`/user/address/${aid}`)
-    if (response.status !== 200) {
+    if (response.status_code !== 200) {
         console.error(response)
         return Promise.reject(response)
     }
