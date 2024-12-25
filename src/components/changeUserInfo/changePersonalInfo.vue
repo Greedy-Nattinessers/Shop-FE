@@ -25,12 +25,16 @@
                 </el-col>
             </el-form-item>
 
-
             <el-form-item label="收货地址:" style="margin-top: 10px;width: 97%;">
                 <el-table :data="addresses" style="width: 100%">
                     <el-table-column prop="name" label="姓名" width="150" />
                     <el-table-column prop="phone" label="电话号码" width="250" />
-                    <el-table-column prop="address" label="收货地址" />
+                    <el-table-column label="收货地址">
+                        <template #default="scope">
+                            {{ scope.row.address }}
+                            <span v-if="scope.row.is_default">(默认地址)</span>
+                        </template>
+                    </el-table-column>
                     <el-table-column label="操作" width="200">
                         <template #default="scope">
                             <el-button plain type="primary" style="margin-top: 0px;margin-right: 2px;"
@@ -44,7 +48,7 @@
                                     <el-form-item label="电话号码">
                                         <el-input v-model="currentAddress.phone" />
                                     </el-form-item>
-                                    <el-form-item label="详细地址">
+                                    <el-form-item label="收货地址">
                                         <el-input v-model="currentAddress.address" type="textarea" />
                                     </el-form-item>
                                     <el-form-item label="设为默认地址">
@@ -77,7 +81,7 @@
                         <el-form-item label="电话号码">
                             <el-input v-model="userInfo.addAddress.phone" />
                         </el-form-item>
-                        <el-form-item label="详细地址">
+                        <el-form-item label="收货地址">
                             <el-input v-model="userInfo.addAddress.address" type="textarea" />
                         </el-form-item>
                         <el-form-item label="设为默认地址">
@@ -104,19 +108,7 @@
                 </div>
             </el-form-item>
 
-
         </div>
-        <!-- 
-        <div class="divider"></div>
-
-        <div class="right-side">
-            <div class="avatar-container">
-                <el-avatar class="avatar"></el-avatar>
-            </div>
-            <div style="display: flex; justify-content: center; align-items: flex-start;">
-                <el-button>更改头像</el-button>
-            </div>
-        </div> -->
 
     </el-form>
 </template>
@@ -132,7 +124,7 @@ import userApi from '@/apis/user'; // 导入整个 userApi 对象
 const router = useRouter()
 const userStore = useUserStore()
 const { addresses } = storeToRefs(userStore)
-const currentAddress = ref(null); // 新的响应式变量
+const currentAddress = ref(null); 
 
 onMounted(async () => {
     await userStore.fetchAddresses();
@@ -163,7 +155,7 @@ const handleAdd = async () => {
 
 const editDialogVisible = ref(false)
 const handleEdit = async (row) => {
-    currentAddress.value = { ...row }; 
+    currentAddress.value = { ...row };
     editDialogVisible.value = true;
 }
 
@@ -176,11 +168,10 @@ const handleEditSubmit = async () => {
     };
 
     try {
-        console.log(currentAddress.value.aid)
-        await userApi.updateAddress(addressParams, currentAddress.value.aid); 
+        await userApi.updateAddress(addressParams, currentAddress.value.aid);
         ElMessage.success('修改成功！');
         await userStore.fetchAddresses();
-        editDialogVisible.value  = false;
+        editDialogVisible.value = false;
     } catch (error) {
         console.error('更新失败：', error); // 打印错误信息
         ElMessage.error('修改失败，请重试！');
@@ -216,8 +207,20 @@ const submit = async () => {
 }
 
 const goBack = () => {
-    router.push('/login')
+    router.push('/userinfo')
 }
+
+const findDefaultAddressId = () => {
+    console.log(addresses.value)
+  if (!addresses.value || addresses.value.length === 0) {
+    console.warn("No addresses found.");
+    return null; 
+  }
+  const defaultAddress = addresses.value.find(address => address.is_default);
+  console.log(defaultAddress.address)
+  return defaultAddress ? defaultAddress.address : null;
+};
+
 
 </script>
 

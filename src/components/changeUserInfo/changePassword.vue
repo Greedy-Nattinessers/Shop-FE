@@ -49,7 +49,7 @@ const convertDate = (date) => {
 }
 
 const goBack = () => {
-    router.push('/login')
+    router.push('/userinfo')
 }
 
 const onSubmit = async () => {

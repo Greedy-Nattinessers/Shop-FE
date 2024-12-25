@@ -1,5 +1,5 @@
 <template>
-  <Topnav></Topnav>
+    <!-- <Topnav></Topnav> -->
     <div class="container">
         <div class="left-side">
             <div class="large-image">
@@ -24,6 +24,10 @@
                 </el-button>
             </div>
 
+            <div>
+                <img v-for="imageUrl in commodityStore.imageUrls" :key="imageUrl" :src="imageUrl" alt="商品图片">
+            </div>
+
         </div>
 
         <div class="right-side">
@@ -32,12 +36,16 @@
                     <h3>{{ productForm.name }}</h3>
                 </el-form-item>
 
+                <el-form-item label="商品描述" style="display: flex; align-items: center; height: 5%;">
+                    <h3>{{ productForm.description }}</h3>
+                </el-form-item>
+
                 <el-form-item label="价格">
                     <div
                         style="display: flex;justify-content: space-between;align-items: flex-start;width: 70%;height: 100%;">
                         <h1 style="color: red;margin: 0 0;">￥{{ totalPrice }}</h1>
 
-                        <el-button @click="showDialog" class="arrow-button">查看评论 ({{ productForm.comments.length
+                        <el-button @click="showDialog" class="arrow-button">查看评论 ({{ commodityStore.comments.length
                             }})</el-button>
 
                         <el-dialog v-model="dialogVisible" :show-close="false">
@@ -45,7 +53,6 @@
                                 <div
                                     style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px; margin-bottom: 0;">
 
-                                    <!-- 使用 flex-grow 使标题居中 -->
                                     <h1 style="flex-grow: 1; text-align: center; margin: 0;">用户评论</h1>
 
                                     <el-button type="danger" @click="close">
@@ -56,8 +63,9 @@
                                     </el-button>
                                 </div>
                             </template>
-                            <div v-for="comment in productForm.comments" :key="comment.id" style=" padding: 20px;">
-                                <strong>{{ comment.username }}</strong>: {{ comment.content }}
+                            <div v-for="comment in commodityStore.comments" :key="comment.id" style=" padding: 20px;">
+                                <!-- <strong>{{ comment.username }}</strong>:  -->
+                                {{ comment.content }}
                             </div>
                             <el-input v-model="newComment" placeholder="添加评论..." style=" padding: 20px;"></el-input>
                             <div style="display: flex;justify-content: center;width: 100%;">
@@ -68,8 +76,36 @@
                     </div>
                 </el-form-item>
 
-                <el-form-item label="收货地址" style="display: flex; align-items: center; height: 5%;">
-                    <p>{{ productForm.address }}</p>
+                <el-form-item label="收货地址"
+                    style="display: flex; justify-content: space-between; align-items: center; height: 5%;">
+                    <div style="display: flex;justify-content: space-between;width: 70%;height: 100%;">
+                        <p>{{ productForm.address }}</p>
+                        <el-button @click="editAddress" style="margin-top: 10px;margin-left: 0px;">修改收货地址</el-button>
+                    </div>
+                    <el-dialog v-model="addressDialogVisible" title="您的收货地址有：">
+
+                        <div v-if="addresses.length === 0">
+                            <p>当前没有地址，请去添加地址。</p>
+                        </div>
+
+                        <div v-for="(address, index) in addresses" :key="index" class="address-container">
+                            <div class="address-info">
+                                <p><strong>姓名:</strong> {{ address.name }}</p>
+                                <p><strong>电话:</strong> {{ address.phone }}</p>
+                                <p><strong>地址:</strong> {{ address.address }}</p>
+                            </div>
+                            <div class="address-action">
+                                <el-button type="danger" @click="selectAddress(index)">选择这个地址</el-button>
+                            </div>
+                            <hr />
+                        </div>
+
+                        <span slot="footer" class="dialog-footer">
+                            <el-button @click="dialogVisible = false">关闭</el-button>
+                        </span>
+
+                    </el-dialog>
+
                 </el-form-item>
 
                 <el-form-item label="操作系统">
@@ -127,47 +163,57 @@
                     <el-button @click="handleCart"
                         style="height: 100%;width: 30%;background-color: white;font-size: 25px;color: red;border: 2px solid #ff0000;">加入购物车</el-button>
                 </el-form-item>
+
             </el-form>
+
         </div>
 
     </div>
-  <downnav></downnav>
+    <!-- <downnav></downnav> -->
 </template>
 
 <script setup>
-import { ref, reactive, computed } from 'vue';
-import { ElButton, ElForm, ElMessage, ElDialog, ElInput } from 'element-plus';
+import { ref, reactive, computed, onMounted } from 'vue';
+import { storeToRefs } from 'pinia'
+import { ElButton, ElForm, ElMessage, ElDialog, ElInput, descriptionProps } from 'element-plus';
 import Topnav from "@/components/Topnav.vue";
 import Downnav from "@/components/Downnav.vue";
+import { useRouter } from 'vue-router';
+import useCommodityStore from '@/stores/commodityDetail';
+import useUserStore from '@/stores/user';
+
+const router = useRouter()
+const commodityStore = useCommodityStore()
+const userStore = useUserStore()
+const { addresses } = storeToRefs(userStore)
+
+onMounted(async () => {
+    await commodityStore.fetchCommodityById();
+    await userStore.fetchAddresses();
+    productForm.address = findDefaultAddressId();
+    await commodityStore.fetchComments();
+});
 
 //产品展示逻辑
 const currentIndex = ref(0);
-
 const images = [
     '../publci../../../public/back.png',
     '../publci../../../public/userInfoBack.png',
 ];
-
 const setCurrentImage = (index) => {
     currentIndex.value = index;
 };
-
 const prevImage = () => {
     currentIndex.value = (currentIndex.value - 1 + images.length) % images.length;
 };
-
 const nextImage = () => {
     currentIndex.value = (currentIndex.value + 1) % images.length;
 };
-
 const productId = ref(1);
-
 const userFavorites = ref([2, 3, 4]);
-
 const isFavorited = computed(() => {
     return userFavorites.value.includes(productId.value);
 });
-
 const toggleFavorite = () => {
     if (isFavorited.value) {
         // 如果已收藏，则移除
@@ -180,14 +226,14 @@ const toggleFavorite = () => {
     }
 };
 
-
 //硬件选择逻辑
 // 产品展示逻辑
-const basePrice = 199; // 电脑自身价格
+const basePrice = commodityStore.price; // 电脑自身价格
 
 const productForm = reactive({
-    name: '电脑',
-    address: '家',
+    name: commodityStore.name,
+    description: commodityStore.description,
+    address: '',
     operatingSystem: [
         { name: '操作A', price: 50 },
         { name: '硬件B', price: 60 },
@@ -209,26 +255,29 @@ const productForm = reactive({
         { name: '硬件C', price: 240 }
     ],
     purchaseQuantity: 1,
-    comments: [
-        { id: 1, username: '用户1', content: '这件商品很好！' },
-        { id: 2, username: '用户2', content: '质量不错。' },
-    ],
 });
 
+//修改收货地址
+const addressDialogVisible = ref(false);
+const editAddress = () => {
+    addressDialogVisible.value = true;
+}
+const selectAddress = (index) => {
+    productForm.address = userStore.addresses[index].address;
+    addressDialogVisible.value = false;
+}
+
 // 计算总价格
-const totalPrice = ref(basePrice + 
-    productForm.operatingSystem[0].price + 
-    productForm.CPU[0].price + 
-    productForm.storage[0].price + 
+const totalPrice = ref(basePrice +
+    productForm.operatingSystem[0].price +
+    productForm.CPU[0].price +
+    productForm.storage[0].price +
     productForm.graphicsCard[0].price
 );
-
 const selectedOperatingSystem = ref(productForm.operatingSystem[0].name);
 const selectedCPU = ref(productForm.CPU[0].name);
 const selectedStorage = ref(productForm.storage[0].name);
 const selectedGraphicsCard = ref(productForm.graphicsCard[0].name);
-
-// 更新总价格
 const updateTotalPrice = () => {
     const osPrice = productForm.operatingSystem.find(os => os.name === selectedOperatingSystem.value)?.price || 0;
     const cpuPrice = productForm.CPU.find(cpu => cpu.name === selectedCPU.value)?.price || 0;
@@ -237,27 +286,22 @@ const updateTotalPrice = () => {
 
     totalPrice.value = basePrice + osPrice + cpuPrice + storagePrice + gpuPrice;
 };
-
 const selectOperatingSystem = (hardware) => {
     selectedOperatingSystem.value = hardware.name;
     updateTotalPrice();
 }
-
 const selectCPU = (hardware) => {
     selectedCPU.value = hardware.name;
     updateTotalPrice();
 }
-
 const selectStorage = (hardware) => {
     selectedStorage.value = hardware.name;
     updateTotalPrice();
 }
-
 const selectGraphicsCard = (hardware) => {
     selectedGraphicsCard.value = hardware.name;
     updateTotalPrice();
 }
-
 const changeQuantity = (num) => {
     productForm.purchaseQuantity += num;
     if (productForm.purchaseQuantity <= 0) {
@@ -268,44 +312,37 @@ const changeQuantity = (num) => {
 
 //表单提交逻辑
 const handlePurchase = () => {
-
+    router.push('\changeuserinfo')
 }
-
-const handleCart = () => {
-
+const handleCart = async () => {
+    await commodityStore.addToCart();
+    ElMessage.success('商品已添加至购物车');
 }
-
+const findDefaultAddressId = () => {
+    if (!addresses.value || addresses.value.length === 0) {
+        console.warn("No addresses found.");
+        return null;
+    }
+    const defaultAddress = addresses.value.find(address => address.is_default);
+    return defaultAddress ? defaultAddress.address : null;
+};
 
 //商品评论逻辑
 const dialogVisible = ref(false);
-
 const newComment = ref('');
-
 const showDialog = () => {
     dialogVisible.value = true;
 };
-
-const addComment = () => {
-    if (newComment.value.trim()) {
-        const newCommentObj = {
-            id: productForm.comments.length + 1, // 使用当前评论数量 + 1 作为新评论的 ID
-            username: productForm.name, // 假设使用产品名称作为评论者名称
-            content: newComment.value // 使用输入的评论内容
-        };
-
-        // 将新评论添加到商品评论数组中
-        productForm.comments.push(newCommentObj);
-
-        // 清空评论输入框
-        newComment.value = '';
-
-        // 提示用户评论已成功添加
-        ElMessage.success('评论已成功添加！');
-    } else {
-        // 如果评论为空，给出提示
-        ElMessage.warning('评论内容不能为空！');
+const addComment = async () => {
+    const commentPara = {
+        content: newComment.value,
+        reply: '1'
     }
-};
+    await commodityStore.addComment(commentPara);
+    await commodityStore.fetchComments();
+    dialogVisible.value = false;
+    ElMessage.success('评论成功！');
+}
 
 </script>
 
@@ -385,7 +422,7 @@ const addComment = () => {
 }
 
 .arrow-button {
-    margin: 0 10px;
+    margin: 0 5px;
     height: 100%;
 }
 
@@ -407,6 +444,33 @@ const addComment = () => {
     width: 48%;
     transition: background-color 0.3s;
     margin-bottom: 10px;
+}
+
+/* 收货地址容器 */
+.address-container {
+    display: flex;
+    justify-content: space-between;
+    /* 左右分开 */
+    align-items: center;
+    /* 垂直居中对齐 */
+    margin-bottom: 10px;
+    /* 每个地址之间的间距 */
+    padding: 10px;
+    border: 1px solid #e0e0e0;
+    /* 边框样式 */
+    border-radius: 4px;
+    /* 圆角边框 */
+}
+
+.address-info {
+    flex: 2;
+    /* 左侧信息占满剩余空间 */
+}
+
+.address-action {
+    flex: 1;
+    margin-left: 20px;
+    /* 右侧按钮与左侧信息之间的间距 */
 }
 
 .arrow-button:hover,
