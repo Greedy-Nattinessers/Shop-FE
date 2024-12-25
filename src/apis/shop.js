@@ -1,4 +1,4 @@
-import {del, get, post, postFormData} from '@/apis/index.js'
+import {del, get, post, postFormData, ServerURL} from '@/apis/index.js'
 
 const allCommodities = async (page = 1) => {
     const response = await get('/shop/all', {page})
@@ -18,25 +18,17 @@ const commodityDetail = async (id) => {
     return response
 }
 
-const commodityAlbum = async (id) => {
-    const response = await get(`/shop/item/${id}/album`)
-    if (response.status_code !== 200) {
-        console.error(response)
-        return Response.reject(response)
-    }
-    return response
+const commodityAlbum = (id) => {
+    return `${ServerURL}/shop/item/${id}/album`
 }
 
-const commodityImage = async (id) => {
-    console.log(id)
-    const response = await get(`/shop/image/${id}`)
-    console.log(response)
-    return response
+const commodityImage = (id) => {
+    return `${ServerURL}/shop/image/${id}`
 }
 
 const createCommodity = async (body, images) => {
     const formData = new FormData();
-    
+
     // 将body对象的各个字段添加到formData中
     formData.append('name', body.name);
     formData.append('price', body.price);
@@ -48,9 +40,9 @@ const createCommodity = async (body, images) => {
     });
 
     console.log('FormData:', formData);
-    
+
     const response = await post('/shop/add', formData);
-    
+
     if (response.status !== 201) {
         console.error('Response Error:', response);
         return Promise.reject(response);
@@ -90,9 +82,9 @@ const getComments = async (cid) => {
     return response
 }
 
-const addComment = async (cid,body) => {
+const addComment = async (cid, body) => {
     console.log("2")
-    const response = await post(`/shop/item/${cid}/comment`,body)
+    const response = await post(`/shop/item/${cid}/comment`, body)
 
     if (response.status_code !== 201) {
         console.error(response);
