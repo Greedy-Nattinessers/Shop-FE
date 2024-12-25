@@ -25,7 +25,7 @@
             </div>
 
             <div>
-                <img v-for="imageUrl in commodityStore.imageUrls" :key="imageUrl" :src="imageUrl" alt="商品图片">
+                <el-image :src="shopApi.commodityImage('9b42e2e908714665809772e70e20ae39')" />
             </div>
 
         </div>
@@ -175,12 +175,13 @@
 <script setup>
 import { ref, reactive, computed, onMounted } from 'vue';
 import { storeToRefs } from 'pinia'
-import { ElButton, ElForm, ElMessage, ElDialog, ElInput, descriptionProps } from 'element-plus';
+import { ElButton, ElForm, ElMessage, ElDialog, ElInput, ElImage } from 'element-plus';
 import Topnav from "@/components/Topnav.vue";
 import Downnav from "@/components/Downnav.vue";
 import { useRouter } from 'vue-router';
 import useCommodityStore from '@/stores/commodityDetail';
 import useUserStore from '@/stores/user';
+import shopApi from '@/apis/shop';
 
 const router = useRouter()
 const commodityStore = useCommodityStore()
@@ -192,6 +193,7 @@ onMounted(async () => {
     await userStore.fetchAddresses();
     productForm.address = findDefaultAddressId();
     await commodityStore.fetchComments();
+    // await commodityStore.fetchCommodityImage();
 });
 
 //产品展示逻辑

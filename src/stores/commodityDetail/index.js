@@ -3,13 +3,14 @@ import commodityApi from '@/apis/shop'
 
 const useCommodityStore = defineStore('commodity', {
   state: () => ({
-    commodityId: 'aedd38666d834df3911105b7a9e96240', 
+    commodityId: 'f3c761e86c0e49bf9d5106ead58ed2dc', 
     name: null,
     price: null,
     album: null,
     description: null,
     images: [],
-    imageUrls: [],
+    imagesSrc: [],
+    i: null,
     comments: []
   }),
 
@@ -47,7 +48,7 @@ const useCommodityStore = defineStore('commodity', {
 
     async fetchCommodityImage() {
       try {
-        this.imageUrls = []
+        this.imagesSrc = []
         if (this.images.length === 0) {
           console.error('没有可用的图片哈希值');
           return false;
@@ -55,14 +56,8 @@ const useCommodityStore = defineStore('commodity', {
     
         for (const imageHash of this.images) {
           const res = await commodityApi.commodityImage(imageHash);
-          console.log(res)
-          // 生成Base64格式的图片源
-          const imageSrc = `data:image/png;base64,${res}`;
-          this.imageUrls.push(imageSrc); 
+          return res
         }
-         console.log(this.imageUrls)
-
-        return true;
       } catch (error) {
         console.error('获取商品图片失败:', error);
         return false;

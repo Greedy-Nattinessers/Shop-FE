@@ -28,8 +28,9 @@ const commodityAlbum = async (id) => {
 }
 
 const commodityImage = async (id) => {
+    console.log(id)
     const response = await get(`/shop/image/${id}`)
-
+    console.log(response)
     return response
 }
 
