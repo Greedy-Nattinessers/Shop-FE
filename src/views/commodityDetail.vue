@@ -24,9 +24,9 @@
                 </el-button>
             </div>
 
-            <div>
+            <!-- <div>
                 <el-image :src="shopApi.commodityImage('9b42e2e908714665809772e70e20ae39')" />
-            </div>
+            </div> -->
 
         </div>
 
@@ -64,7 +64,7 @@
                                 </div>
                             </template>
                             <div v-for="comment in commodityStore.comments" :key="comment.id" style=" padding: 20px;">
-                                <!-- <strong>{{ comment.username }}</strong>:  -->
+                                <strong>{{ commentsUsernameMap[comment.uid] }}</strong>:
                                 {{ comment.content }}
                             </div>
                             <el-input v-model="newComment" placeholder="添加评论..." style=" padding: 20px;"></el-input>
@@ -188,29 +188,34 @@ const commodityStore = useCommodityStore()
 const userStore = useUserStore()
 const { addresses } = storeToRefs(userStore)
 
+const commentsUsernameMap = ref({}); 
 onMounted(async () => {
     await commodityStore.fetchCommodityById();
     await userStore.fetchAddresses();
     productForm.address = findDefaultAddressId();
+
     await commodityStore.fetchComments();
+    for (const comment of commodityStore.comments) {
+        commentsUsernameMap.value[comment.uid] = await commodityStore.fetchCommentsUsername(comment.uid)
+    }
+    images.value = commodityStore.images.map(imageId => shopApi.commodityImage(imageId));
     // await commodityStore.fetchCommodityImage();
 });
 
 //产品展示逻辑
 const currentIndex = ref(0);
-const images = [
-    '../publci../../../public/back.png',
-    '../publci../../../public/userInfoBack.png',
-];
+const images = ref([]);
 const setCurrentImage = (index) => {
     currentIndex.value = index;
 };
 const prevImage = () => {
-    currentIndex.value = (currentIndex.value - 1 + images.length) % images.length;
+    currentIndex.value = (currentIndex.value - 1 + images.value.length) % images.value.length;
 };
 const nextImage = () => {
-    currentIndex.value = (currentIndex.value + 1) % images.length;
+    currentIndex.value = (currentIndex.value + 1) % images.value.length;
 };
+
+//收藏逻辑
 const productId = ref(1);
 const userFavorites = ref([2, 3, 4]);
 const isFavorited = computed(() => {
@@ -338,7 +343,6 @@ const showDialog = () => {
 const addComment = async () => {
     const commentPara = {
         content: newComment.value,
-        reply: '1'
     }
     await commodityStore.addComment(commentPara);
     await commodityStore.fetchComments();

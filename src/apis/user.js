@@ -60,6 +60,15 @@ const profile = async () => {
     return response
 }
 
+const othersProfile = async (uid) => {
+    const response = await get(`/user/profile/${uid}`)
+    if (response.status_code !== 200) {
+        console.error(response)
+        return Promise.reject(response)
+    }
+    return response.data.username
+}
+
 const updateProfile = async (profile, uid) => {
     const response = await put(`/user/profile/${uid}`, profile)
     if (response.status_code !== 200) {
@@ -112,6 +121,7 @@ export default {
     recoverCaptcha,
     recover,
     profile,
+    othersProfile,
     updateProfile,
     address,
     addAddress,

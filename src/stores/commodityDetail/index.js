@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import commodityApi from '@/apis/shop'  
+import userApi from '@/apis/user'
 
 const useCommodityStore = defineStore('commodity', {
   state: () => ({
@@ -9,7 +10,6 @@ const useCommodityStore = defineStore('commodity', {
     album: null,
     description: null,
     images: [],
-    imagesSrc: [],
     i: null,
     comments: []
   }),
@@ -55,7 +55,7 @@ const useCommodityStore = defineStore('commodity', {
         }
     
         for (const imageHash of this.images) {
-          const res = await commodityApi.commodityImage(imageHash);
+          const res = commodityApi.commodityImage(imageHash);
           return res
         }
       } catch (error) {
@@ -75,10 +75,18 @@ const useCommodityStore = defineStore('commodity', {
       } 
     },
 
+    async fetchCommentsUsername(uid) {
+      try {
+        const res = await userApi.othersProfile(uid)
+        return res
+      } catch {
+        return false
+      } 
+    },
+
     async addComment(body) {
       try {
         await commodityApi.addComment(this.commodityId,body)
-        console.log("3")
         return true
       } catch {
         return false
