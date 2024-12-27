@@ -99,7 +99,6 @@ const getAddress = async (aid) => {
 }
 
 const addAddress = async (address) => {
-    console.log("1")
     const response = await post('/user/address', address)
     if (response.status_code !== 201) {
         console.error(response)

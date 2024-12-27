@@ -190,6 +190,8 @@ onMounted(async () => {
     await commodityStore.fetchCommodityById();
     await userStore.fetchAddresses();
     const add = await userApi.getAddress(userStore.aid);
+    productForm.name = commodityStore.name;
+    productForm.description = commodityStore.description;
     productForm.address = add.address;
 
     await commodityStore.fetchComments();

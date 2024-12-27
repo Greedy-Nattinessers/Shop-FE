@@ -79,9 +79,8 @@ const useUserStore = defineStore('user', {
         async addAddress(address) {
             try {
                 const res = await user.addAddress(address)
-                this.aid = res.data
                 await this.fetchAddresses()
-                return true
+                return res.data
             } catch {
                 return false
             }

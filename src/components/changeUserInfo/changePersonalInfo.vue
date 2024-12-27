@@ -148,7 +148,18 @@ const userInfo = reactive({
 
 const dialogVisible = ref(false)
 const handleAdd = async () => {
-    await userStore.addAddress(userInfo.addAddress)
+    const res = await userStore.addAddress(userInfo.addAddress)
+    if (userInfo.addAddress.is_default === true) {
+        const userInfoParams = {
+            birthday: convertDate(new Date(userInfo.birthday)), // 假设这里需要将用户的生日转换为字符串格式
+            gender: userInfo.gender,
+            password: userStore.password, // 这里假设你想要提交用户的密码
+            permission: userStore.permission, // 权限字段
+            aid: res
+        };
+        await userApi.updateProfile(userInfoParams, userStore.uid);
+        await userStore.update();
+    }
     userInfo.addAddress.name = ''
     userInfo.addAddress.phone = ''
     userInfo.addAddress.address = ''
