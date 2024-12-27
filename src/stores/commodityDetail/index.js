@@ -4,7 +4,7 @@ import userApi from '@/apis/user'
 
 const useCommodityStore = defineStore('commodity', {
   state: () => ({
-    commodityId: 'f3c761e86c0e49bf9d5106ead58ed2dc', 
+    commodityId: '8462bdbefa39448091859a750fd171b9', 
     name: null,
     price: null,
     album: null,

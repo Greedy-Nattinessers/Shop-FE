@@ -18,15 +18,11 @@
 
             </div>
 
-            <div style="margin-left: 20px;">
+            <div style="margin-left: 20px;margin-top: 20px;">
                 <el-button @click="toggleFavorite" :style="{ color: isFavorited ? 'red' : 'black' }" :icon="'Star'">
                     <p>收藏</p>
                 </el-button>
             </div>
-
-            <!-- <div>
-                <el-image :src="shopApi.commodityImage('9b42e2e908714665809772e70e20ae39')" />
-            </div> -->
 
         </div>
 
@@ -182,6 +178,7 @@ import { useRouter } from 'vue-router';
 import useCommodityStore from '@/stores/commodityDetail';
 import useUserStore from '@/stores/user';
 import shopApi from '@/apis/shop';
+import userApi from '@/apis/user';
 
 const router = useRouter()
 const commodityStore = useCommodityStore()
@@ -192,14 +189,14 @@ const commentsUsernameMap = ref({});
 onMounted(async () => {
     await commodityStore.fetchCommodityById();
     await userStore.fetchAddresses();
-    productForm.address = findDefaultAddressId();
+    const add = await userApi.getAddress(userStore.aid);
+    productForm.address = add.address;
 
     await commodityStore.fetchComments();
     for (const comment of commodityStore.comments) {
         commentsUsernameMap.value[comment.uid] = await commodityStore.fetchCommentsUsername(comment.uid)
     }
     images.value = commodityStore.images.map(imageId => shopApi.commodityImage(imageId));
-    // await commodityStore.fetchCommodityImage();
 });
 
 //产品展示逻辑
@@ -325,13 +322,9 @@ const handleCart = async () => {
     await commodityStore.addToCart();
     ElMessage.success('商品已添加至购物车');
 }
-const findDefaultAddressId = () => {
-    if (!addresses.value || addresses.value.length === 0) {
-        console.warn("No addresses found.");
-        return null;
-    }
-    const defaultAddress = addresses.value.find(address => address.is_default);
-    return defaultAddress ? defaultAddress.address : null;
+const findDefaultAddressId = async () => {
+    const res = await userApi.getAddress(userStore.aid);
+    return res.address
 };
 
 //商品评论逻辑
@@ -386,7 +379,7 @@ const addComment = async () => {
 .large-image {
     margin: auto;
     width: 90%;
-    height: 75%;
+    height: 70%;
 }
 
 .large-image img {
