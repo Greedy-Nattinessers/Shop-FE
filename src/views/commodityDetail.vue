@@ -1,5 +1,5 @@
 <template>
-    <!-- <Topnav></Topnav> -->
+     <!-- <Topnav></Topnav> -->
     <div class="container">
         <div class="left-side">
             <div class="large-image">
@@ -190,6 +190,7 @@ onMounted(async () => {
     await commodityStore.fetchCommodityById();
     await userStore.fetchAddresses();
     const add = await userApi.getAddress(userStore.aid);
+    productForm.nowAid = userStore.aid
     productForm.name = commodityStore.name;
     productForm.description = commodityStore.description;
     productForm.address = add.address;
@@ -240,6 +241,7 @@ const productForm = reactive({
     name: commodityStore.name,
     description: commodityStore.description,
     address: '',
+    nowAid: '',
     operatingSystem: [
         { name: '操作A', price: 50 },
         { name: '硬件B', price: 60 },
@@ -270,6 +272,7 @@ const editAddress = () => {
 }
 const selectAddress = (index) => {
     productForm.address = userStore.addresses[index].address;
+    productForm.nowAid = userStore.addresses[index].aid;
     addressDialogVisible.value = false;
 }
 
@@ -315,10 +318,15 @@ const changeQuantity = (num) => {
     }
 }
 
-
 //表单提交逻辑
-const handlePurchase = () => {
-    router.push('\changeuserinfo')
+const handlePurchase = async () => {
+    const orderPara = {
+        aid: productForm.nowAid,
+        content: {}
+    }
+    orderPara.content[commodityStore.commodityId] = productForm.purchaseQuantity;
+    await shopApi.addOrder(orderPara)
+    ElMessage.success('商品已添加至订单');
 }
 const handleCart = async () => {
     await commodityStore.addToCart();

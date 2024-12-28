@@ -130,6 +130,15 @@ const clearCart = async () => {
     return response
 }
 
+const addOrder = async (body) => {
+    const response = await post(`/order/add`,body)
+    if (response.status_code !== 201) {
+        console.error(response)
+        return Response.reject(response)
+    }
+    return response
+}
+
 export default {
     allCommodities,
     commodityDetail,
@@ -143,5 +152,6 @@ export default {
     addCart,
     removeCart,
     allCart,
-    clearCart
+    clearCart,
+    addOrder
 }
