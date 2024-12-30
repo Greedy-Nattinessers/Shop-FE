@@ -21,9 +21,11 @@ const registerCaptcha = async (email) => {
 }
 
 const register = async (registerForm, requestId) => {
+    console.log("1")
     const headers = new AxiosHeaders()
     headers.set('request-id', requestId)
     const response = await postFormData('/user/register', registerForm, headers)
+    console.log(response.status_code)
     if (response.status_code !== 201) {
         console.error(response)
         return Promise.reject(response)
@@ -87,6 +89,15 @@ const address = async () => {
     return response
 }
 
+const getAddress = async (aid) => {
+    const response = await get(`/user/address/${aid}`)
+    if (response.status_code !== 200) {
+        console.error(response)
+        return Promise.reject(response)
+    }
+    return response.data
+}
+
 const addAddress = async (address) => {
     const response = await post('/user/address', address)
     if (response.status_code !== 201) {
@@ -124,6 +135,7 @@ export default {
     othersProfile,
     updateProfile,
     address,
+    getAddress,
     addAddress,
     updateAddress,
     deleteAddress

@@ -11,6 +11,7 @@ const useUserStore = defineStore('user', {
         birthday: undefined,
         gender: undefined,
         addresses: [], // 地址列表状态
+        aid: undefined
     }),
     getters: {
         userInfo(state) {
@@ -77,9 +78,9 @@ const useUserStore = defineStore('user', {
         // 添加地址
         async addAddress(address) {
             try {
-                await user.addAddress(address)
+                const res = await user.addAddress(address)
                 await this.fetchAddresses()
-                return true
+                return res.data
             } catch {
                 return false
             }

@@ -28,48 +28,50 @@
             <el-form-item label="收货地址:" style="margin-top: 10px;width: 97%;">
                 <el-table :data="addresses" style="width: 100%">
                     <el-table-column prop="name" label="姓名" width="150" />
-                    <el-table-column prop="phone" label="电话号码" width="250" />
+                    <el-table-column prop="phone" label="电话号码" width="150" />
                     <el-table-column label="收货地址">
                         <template #default="scope">
                             {{ scope.row.address }}
-                            <span v-if="scope.row.is_default">(默认地址)</span>
+                            <span v-if="scope.row.aid === userStore.aid">(默认地址)</span>
                         </template>
                     </el-table-column>
                     <el-table-column label="操作" width="200">
                         <template #default="scope">
                             <el-button plain type="primary" style="margin-top: 0px;margin-right: 2px;"
                                 @click="handleEdit(scope.row)">编辑</el-button>
-                            <el-dialog v-model="editDialogVisible" title="编辑地址" width="500">
-                                <h3>请修改您的地址信息</h3>
-                                <el-form :model="currentAddress" label-width="auto" style="max-width: 600px">
-                                    <el-form-item label="姓名">
-                                        <el-input v-model="currentAddress.name" />
-                                    </el-form-item>
-                                    <el-form-item label="电话号码">
-                                        <el-input v-model="currentAddress.phone" />
-                                    </el-form-item>
-                                    <el-form-item label="收货地址">
-                                        <el-input v-model="currentAddress.address" type="textarea" />
-                                    </el-form-item>
-                                    <el-form-item label="设为默认地址">
-                                        <el-switch v-model="currentAddress.is_default" />
-                                    </el-form-item>
-                                </el-form>
-                                <template #footer>
-                                    <div class="dialog-footer">
-                                        <el-button @click="editDialogVisible = false">取消</el-button>
-                                        <el-button @click="handleEditSubmit"
-                                            style="margin-left: 10px;color: white; background-color: red;">
-                                            确认
-                                        </el-button>
-                                    </div>
-                                </template>
-                            </el-dialog>
                             <el-button plain type="danger" style="margin-top: 0px;"
                                 @click="handleDelete(scope.row)">删除</el-button>
                         </template>
                     </el-table-column>
                 </el-table>
+
+                <el-dialog v-model="editDialogVisible" title="编辑地址" width="500">
+                    <h3>请修改您的地址信息</h3>
+                    <el-form :model="currentAddress" label-width="auto" style="max-width: 600px">
+                        <el-form-item label="姓名">
+                            <el-input v-model="currentAddress.name" />
+                        </el-form-item>
+                        <el-form-item label="电话号码">
+                            <el-input v-model="currentAddress.phone" />
+                        </el-form-item>
+                        <el-form-item label="收货地址">
+                            <el-input v-model="currentAddress.address" type="textarea" />
+                        </el-form-item>
+                        <el-form-item label="设为默认地址">
+                            <el-switch v-model="currentAddress.is_default" />
+                        </el-form-item>
+                    </el-form>
+                    <template #footer>
+                        <div class="dialog-footer">
+                            <el-button @click="editDialogVisible = false">取消</el-button>
+                            <el-button @click="handleEditSubmit"
+                                style="margin-left: 10px;color: white; background-color: red;">
+                                确认
+                            </el-button>
+                        </div>
+                    </template>
+                </el-dialog>
+
                 <el-button @click="dialogVisible = true" style="margin-top: 10px;">添加收货地址</el-button>
 
                 <el-dialog v-model="dialogVisible" title="添加地址" width="500">
@@ -124,7 +126,7 @@ import userApi from '@/apis/user'; // 导入整个 userApi 对象
 const router = useRouter()
 const userStore = useUserStore()
 const { addresses } = storeToRefs(userStore)
-const currentAddress = ref(null); 
+const currentAddress = ref(null);
 
 onMounted(async () => {
     await userStore.fetchAddresses();
@@ -137,25 +139,39 @@ const userInfo = reactive({
     email: userStore.email,
     addresses: addresses.value,
     addAddress: {
-        name: '1',
-        phone: '1',
-        address: '1',
+        name: '',
+        phone: '',
+        address: '',
         is_default: true
     },
 });
 
 const dialogVisible = ref(false)
 const handleAdd = async () => {
-    await userStore.addAddress(userInfo.addAddress)
-    userInfo.addAddress.name = '1'
-    userInfo.addAddress.phone = '1'
-    userInfo.addAddress.addAddress = '1'
+    const res = await userStore.addAddress(userInfo.addAddress)
+    if (userInfo.addAddress.is_default === true) {
+        const userInfoParams = {
+            birthday: convertDate(new Date(userInfo.birthday)), // 假设这里需要将用户的生日转换为字符串格式
+            gender: userInfo.gender,
+            password: userStore.password, // 这里假设你想要提交用户的密码
+            permission: userStore.permission, // 权限字段
+            aid: res
+        };
+        await userApi.updateProfile(userInfoParams, userStore.uid);
+        await userStore.update();
+    }
+    userInfo.addAddress.name = ''
+    userInfo.addAddress.phone = ''
+    userInfo.addAddress.address = ''
     dialogVisible.value = false;
 }
 
 const editDialogVisible = ref(false)
 const handleEdit = async (row) => {
     currentAddress.value = { ...row };
+    if (row.aid === userStore.aid) {
+        currentAddress.value.is_default = true
+    }
     editDialogVisible.value = true;
 }
 
@@ -164,10 +180,20 @@ const handleEditSubmit = async () => {
         name: currentAddress.value.name,
         phone: currentAddress.value.phone,
         address: currentAddress.value.address,
-        is_default: currentAddress.value.is_default
     };
 
     try {
+        if (currentAddress.value.is_default == true) {
+            const userInfoParams = {
+                birthday: convertDate(new Date(userInfo.birthday)), // 假设这里需要将用户的生日转换为字符串格式
+                gender: userInfo.gender,
+                password: userStore.password, // 这里假设你想要提交用户的密码
+                permission: userStore.permission, // 权限字段
+                aid: currentAddress.value.aid
+            };
+            await userApi.updateProfile(userInfoParams, userStore.uid);
+            await userStore.update();
+        }
         await userApi.updateAddress(addressParams, currentAddress.value.aid);
         ElMessage.success('修改成功！');
         await userStore.fetchAddresses();
@@ -194,7 +220,8 @@ const submit = async () => {
         birthday: convertDate(new Date(userInfo.birthday)), // 假设这里需要将用户的生日转换为字符串格式
         gender: userInfo.gender,
         password: userStore.password, // 这里假设你想要提交用户的密码
-        permission: userStore.permission // 权限字段
+        permission: userStore.permission, // 权限字段
+        aid: userStore.aid
     };
 
     try {
@@ -209,17 +236,6 @@ const submit = async () => {
 const goBack = () => {
     router.push('/userinfo')
 }
-
-const findDefaultAddressId = () => {
-    console.log(addresses.value)
-  if (!addresses.value || addresses.value.length === 0) {
-    console.warn("No addresses found.");
-    return null; 
-  }
-  const defaultAddress = addresses.value.find(address => address.is_default);
-  console.log(defaultAddress.address)
-  return defaultAddress ? defaultAddress.address : null;
-};
 
 
 </script>

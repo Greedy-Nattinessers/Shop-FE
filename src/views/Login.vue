@@ -209,6 +209,7 @@ const submitForm = async () => {
             captcha: loginForm.validCode
         };// 确保在表单中获取验证码
         try {
+            console.log(registerParams.captcha)
             response = await userApi.register(registerParams, requestid);
             ElMessage.success('注册成功！');
             formType.value = 0;
