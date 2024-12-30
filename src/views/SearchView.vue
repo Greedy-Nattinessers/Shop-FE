@@ -62,6 +62,8 @@
   import Downnav from "@/components/Downnav.vue";
   import Topnav2 from "@/components/Topnav2.vue";
   import {Search} from "@element-plus/icons-vue";
+  import shopApi from '@/apis/shop'; // 导入整个 userApi 对象
+  import useUserStore from '@/stores/user/index';
   
   // 标签组数据
   const tagGroups = ref({
@@ -109,8 +111,14 @@
     return searchResults.value.slice(startIndex, endIndex);
   });
 
-  function submitSearch(){
-     console.log(input);
+  const submitSearch = async () =>{
+    let allCommodities = await shopApi.allCommodities();
+    console.log(allCommodities);
+    let Commodities = allCommodities.data;
+    console.log(Commodities);
+    let searchResults = Commodities.filter((item) => {
+      return item.name.includes(input);
+    });
   }
 
   </script>
