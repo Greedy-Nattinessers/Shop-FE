@@ -1,4 +1,6 @@
+
 <template>
+    <Topnav></Topnav>
     <div class="home-page">
       <!-- 顶部轮播图 -->
       <el-carousel :interval="5000" arrow="always" class="top-carousel">
@@ -104,10 +106,12 @@
     ElCard,
     ElCol,
   } from "element-plus";
-  
+  import Topnav from "@/components/Topnav.vue";
+
   export default {
     name: "Home",
     components: {
+      Topnav,
       ElCarousel,
       ElCarouselItem,
       ElMenu,

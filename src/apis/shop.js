@@ -23,6 +23,7 @@ const commodityAlbum = (id) => {
 }
 
 const commodityImage = (id) => {
+    console.log("1")
     return `${ServerURL}/shop/image/${id}`
 }
 

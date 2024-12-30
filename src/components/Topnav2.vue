@@ -10,9 +10,14 @@
     data(){
       return{
         user:{
-          name:"马老六",
+          name:"用户中心",
         }
     }
+    },
+    methods:{
+      handleSelect:function (){
+        console.log(666);
+      }
     },
     props:{
       viewName:String,
@@ -23,14 +28,14 @@
 <template>
   <div class="top">
     <el-menu
-        :default-active="1"
+        :default-active="'0'"
         class="el-menu-demo"
         mode="horizontal"
         @select="handleSelect"
     >
-      <router-link to="HomeView">
+      <router-link to="Main">
         <el-image src="../../public/logo.png"
-                  style="width: 200px;height: 40px;margin-top: 10px">
+                  style="width: 200px;height: 40px;margin-top: 10px;">
         </el-image>
       </router-link>
       <span class="viewName">{{$props.viewName}}</span>
@@ -38,7 +43,7 @@
         <el-button :icon="ShoppingCart"
                    style="
                 position: absolute;
-                margin:11px 0 0 10px;
+                margin:11px 10px 0 10px;
                 border:0;
                 right: 100px;"
         ></el-button>
@@ -48,18 +53,18 @@
                   position: absolute;
                   margin:0 0 0 10px;
                   border:0;
-                  right: 5px;" id="userName">
+                  right: 5px;" id="userName" index="0">
         <template #title>{{user.name}}</template>
         <router-link to="userInfo">
-          <el-menu-item><template #title>个人信息</template></el-menu-item>
+          <el-menu-item index="1"><template #title>个人信息</template></el-menu-item>
         </router-link>
-        <router-link to="home">
-          <el-menu-item><template #title>我的收藏</template></el-menu-item>
+        <router-link to="Favor">
+          <el-menu-item index="2"><template #title>我的收藏</template></el-menu-item>
         </router-link>
         <router-link to="Order">
-          <el-menu-item><template #title>我的订单</template></el-menu-item>
+          <el-menu-item index="3"><template #title>我的订单</template></el-menu-item>
         </router-link>
-        <el-menu-item><template #title>退出登录</template></el-menu-item>
+        <el-menu-item index="4"><template #title>退出登录</template></el-menu-item>
       </el-sub-menu>
     </el-menu>
   </div>

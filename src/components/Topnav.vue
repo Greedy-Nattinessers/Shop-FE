@@ -89,7 +89,7 @@ export default {
       ],
       // 用户
       user: {
-        name: "马老六",
+        name: "用户中心",
       },
     }
   },
@@ -104,12 +104,12 @@ export default {
 
 <template>
   <el-menu
-      :default-active="1"
+      :default-active="'1'"
       class="el-menu-demo"
       mode="horizontal"
       @select="handleSelect"
   >
-    <router-link to="HomeView">
+    <router-link to="Main">
     <el-image src="../../public/logo.png"
               style="width: 200px;height: 40px;margin-top: 10px">
     </el-image>
@@ -198,20 +198,20 @@ export default {
     <el-sub-menu
         style="
                 position: absolute;
-                margin:0 0 0 10px;
+                margin:0 -8px 0 10px;
                 border:0;
                 right: 5px;" id="userName">
       <template #title>{{user.name}}</template>
       <router-link to="userInfo">
-      <el-menu-item><template #title>个人信息</template></el-menu-item>
+      <el-menu-item index=""><template #title>个人信息</template></el-menu-item>
       </router-link>
-      <router-link to="home">
-      <el-menu-item><template #title>我的收藏</template></el-menu-item>
+      <router-link to="Favor">
+      <el-menu-item index=""><template #title>我的收藏</template></el-menu-item>
       </router-link>
       <router-link to="Order">
-      <el-menu-item><template #title>我的订单</template></el-menu-item>
+      <el-menu-item index=""><template #title>我的订单</template></el-menu-item>
       </router-link>
-      <el-menu-item><template #title>退出登录</template></el-menu-item>
+      <el-menu-item index=""><template #title>退出登录</template></el-menu-item>
     </el-sub-menu>
   </el-menu>
 </template>

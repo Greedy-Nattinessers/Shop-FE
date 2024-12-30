@@ -1,4 +1,5 @@
 <template>
+  <Topnav2 viewName="个人中心"></Topnav2>
     <div class="common-layout">
         <el-container class="centered-container">
             <el-aside width="200px">
@@ -14,6 +15,7 @@
 <script setup>
 import { ElContainer } from 'element-plus';
 import TreeMenu from '@/components/changeUserInfo/treeMenu.vue';
+import Topnav2 from "@/components/Topnav2.vue";
 
 </script>
 

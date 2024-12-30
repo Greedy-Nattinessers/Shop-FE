@@ -199,6 +199,7 @@ onMounted(async () => {
         commentsUsernameMap.value[comment.uid] = await commodityStore.fetchCommentsUsername(comment.uid)
     }
     images.value = commodityStore.images.map(imageId => shopApi.commodityImage(imageId));
+    console.log("2")
     // await commodityStore.fetchCommodityImage();
 });
 

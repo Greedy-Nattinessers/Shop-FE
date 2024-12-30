@@ -1,49 +1,65 @@
 <script>
 import Topnav2 from "@/components/Topnav2.vue";
 import Downnav from "@/components/Downnav.vue";
-
+import userApi from '@/apis/user'; // 导入整个 userApi 对象
+import orderApi from '@/apis/order.js'
+import shopApi from '@/apis/shop.js'
+import cartApi from "@/apis/cart.js";
 export default {
   components: {Downnav, Topnav2},
   data(){
     return {
-      orders:[
-        {
-          id:1,
-          name:"马老六",
-          price:123,
-          detail:{},
-          intro:"诗人我吃 他真不是人",
-          count:3,
-          image:"https://tse2-mm.cn.bing.net/th/id/OIP-C.FRZh6FryVcYvQa5KVRpUCwAAAA?rs=1&pid=ImgDetMain",
-          state:"已签收",
-          showIt:true,
-        },
-        {
-          id:2,
-          name:"林gard",
-          price:5,
-          detail:{},
-          intro:"甄布诗人 我说的",
-          count:4,
-          image:"https://tse3-mm.cn.bing.net/th/id/OIP-C.GDCnhLgh7PLOiraerH7GaQHaF9?rs=1&pid=ImgDetMain",
-          state:"正在配送中",
-          showIt: true,
-        }
-      ]
+      orders:[]
     }
   },
+  mounted() {
+    this.getAllOrders();
+  },
+
   methods:{
+    getAllOrders: async function() {
+      try {
+        const data = await orderApi.getOrders();
+        const promises = data.data.map(async item => {
+          const list = { // 在每次迭代中创建一个新的list对象
+            oid: item.oid,
+            time: item.time,
+            status: item.status,
+            cid: "",
+            count: 0,
+          };
+          const entries = Object.entries(item.content);
+          for (const [key, value] of entries) { // 使用for...of循环遍历entries
+            list.cid = key;
+            list.count = value;
+            const detail = await shopApi.commodityDetail(list.cid);
+            list.name = detail.data.name; // 直接赋值，不需要await
+            list.image = await cartApi.getImg(list.cid);
+            list.price = detail.data.price; // 直接赋值，不需要await
+          }
+          return list; // 返回当前迭代的list对象
+        });
+        const Lists = await Promise.all(promises); // 等待所有promises完成，并获取结果数组
+        console.log(Lists);
+        this.orders = Lists;
+      } catch (error) {
+        console.error('无商品');
+      }
+    },
     priceSum:function (e){
       return e.price*e.count
     },
-    signReceive:function (e){
-      e.state="已签收"
+    signReceive:async function (e){
+      await console.log(orderApi.receiveOrder(e.oid,1));
+      location.reload();
     },
     jumpToDetails:function (e){
       console.log("跳到"+e.name)
     },
-    deleteOrder:function (e){
-      e.showIt=false
+    deleteOrder:async function (e){
+      await orderApi.receiveOrder(e.oid,1);
+      await console.log(orderApi.deleteOrder(e.oid));
+      location.reload();
     },
   }
 }
@@ -63,22 +79,27 @@ export default {
         <th>状态</th>
       </tr>
       <template v-for="(item,index) in orders">
-      <tr id="order" v-if="item.showIt">
+      <tr id="order" v-if="item.status!==3">
         <td>
           <img :src="item.image" id="images" @click="jumpToDetails(item)">
         </td>
         <td>
-          <p id="name">{{item.name}}</p>
-          <p id="intro">{{item.intro}}</p>
+          <p id="name" style="text-align: center">{{item.name}}</p>
+          <p style="font-size: 12px;color: #b1b1b1">{{item.time}}</p>
         </td>
-        <td>￥{{item.price}}</td>
+        <td style="color:red;">￥{{item.price}}</td>
         <td>{{item.count}}</td>
-        <td>￥{{priceSum(item)}}</td>
+        <td style="font-weight: bold;color: red">￥{{priceSum(item)}}</td>
         <td>
-          <button v-if="item.state!=='已签收'" id="recpt" @click="signReceive(item)">确认收货</button>
-          <button v-else id="delt" @click="deleteOrder(item)">删除记录</button>
+          <button v-if="item.status === 2" id="recpt" @click="signReceive(item)">确认收货</button>
+          <button v-if="item.status === 0" id="delt" @click="deleteOrder(item)">取消订单</button>
+          <button v-if="item.status === 1" id="delt2" @click="deleteOrder(item)">删除记录</button>
         </td>
-        <td style="color: red">{{item.state}}</td>
+        <td style="font-weight: bold">
+          <span v-if="item.status === 2" style="color: #3aa5bf;">运输中</span>
+          <span v-if="item.status === 0" style="">待发货</span>
+          <span v-if="item.status === 1" style="color: #1234ff">已完成</span>
+        </td>
       </tr>
       </template>
     </table>
@@ -136,8 +157,20 @@ body{
 }
 
 #delt:hover{
-  background-color: #1b3c2d;
+  background-color: #baee2d;
 }
+
+#delt2{
+  background-color: rgb(20, 120, 50);
+  font-size: 18px;
+  border-radius: 8px;
+  color: white;
+}
+
+#delt2:hover{
+  background-color: #123ffd;
+}
+
 
 #recpt:hover{
   background-color: #2595bb;
