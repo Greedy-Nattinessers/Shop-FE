@@ -49,10 +49,8 @@
           layout="prev, pager, next, jumper"
         />
       </el-col>
-
+      <downnav></downnav>
     </div>
-    <downnav></downnav>
-    
   </template>
   
   <script setup>

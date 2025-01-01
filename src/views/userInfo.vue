@@ -1,5 +1,5 @@
 <template>
-    <!-- <Topnav2 viewName="用户信息"></Topnav2> -->
+    <Topnav2 viewName="用户信息"></Topnav2>
     <img src="/userInfoBack.png" alt="Header Image" class="header-image" />
     <el-container class="info-header">
         <div class="avatar-container">

@@ -95,6 +95,7 @@ export default {
   },
   methods:{
     handleSelect:function (e){
+      this.$router.push({path:'/SearchView',query:{id:e}});
       console.log(e);
     }
   }
@@ -173,13 +174,13 @@ export default {
     </el-sub-menu>
     <el-sub-menu index="2">
       <template #title>服务</template>
-      <el-menu-item v-for="(item,index) in service" :index="item.name">
+      <el-menu-item v-for="(item,index) in service" :index="undefined">
         <template #title>{{item.name}}</template>
       </el-menu-item>
     </el-sub-menu>
     <el-sub-menu index="3">
       <template #title>品牌</template>
-      <el-menu-item v-for="(item,index) in story" :index="item.name">
+      <el-menu-item v-for="(item,index) in story" :index="undefined">
         <template #title>{{item.name}}</template>
       </el-menu-item>
     </el-sub-menu>
@@ -200,18 +201,18 @@ export default {
                 position: absolute;
                 margin:0 -8px 0 10px;
                 border:0;
-                right: 5px;" id="userName">
+                right: 5px;" id="userName" index="user">
       <template #title>{{user.name}}</template>
       <router-link to="userInfo">
-      <el-menu-item index=""><template #title>个人信息</template></el-menu-item>
+      <el-menu-item index=" "><template #title>个人信息</template></el-menu-item>
       </router-link>
       <router-link to="Favor">
-      <el-menu-item index=""><template #title>我的收藏</template></el-menu-item>
+      <el-menu-item index=" "><template #title>我的收藏</template></el-menu-item>
       </router-link>
       <router-link to="Order">
-      <el-menu-item index=""><template #title>我的订单</template></el-menu-item>
+      <el-menu-item index=" "><template #title>我的订单</template></el-menu-item>
       </router-link>
-      <el-menu-item index=""><template #title>退出登录</template></el-menu-item>
+      <el-menu-item index=" "><template #title>退出登录</template></el-menu-item>
     </el-sub-menu>
   </el-menu>
 </template>
@@ -220,9 +221,12 @@ export default {
 <script setup>
 import {ref} from "vue";
 import {Search, ShoppingCart} from "@element-plus/icons-vue";
+import { useRouter } from "vue-router";
 const input = ref('')
+const router = useRouter();
 function submitSearch(){
-  console.log(input);
+  router.push({path:'/SearchView',query:{id:input.value}});
+  console.log(input.value);
 }
 </script>
 

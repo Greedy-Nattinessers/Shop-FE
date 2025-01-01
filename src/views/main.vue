@@ -93,7 +93,8 @@
         </div>
       </div>
     </div>
-  </template>
+  <Downnav ></Downnav>
+</template>
   
   <script>
   import { ref, computed } from "vue";
@@ -107,10 +108,12 @@
     ElCol,
   } from "element-plus";
   import Topnav from "@/components/Topnav.vue";
+  import Downnav from "@/components/Downnav.vue";
 
   export default {
     name: "Home",
     components: {
+      Downnav,
       Topnav,
       ElCarousel,
       ElCarouselItem,

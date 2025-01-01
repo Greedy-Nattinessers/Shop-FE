@@ -5,9 +5,10 @@ import cartApi from "@/apis/cart.js";
 import useUserStore from '@/stores/user/index';
 import userApi from '@/apis/user'; // 导入整个 userApi 对象
 import Topnav2 from "@/components/Topnav2.vue";
+import Downnav from "@/components/Downnav.vue";
 
 export default {
-  components: {Topnav2},
+  components: {Downnav, Topnav2},
   data(){
     return {
       isAllChecked:false,
@@ -185,6 +186,7 @@ export default {
 
   </div>
   </body>
+  <Downnav></Downnav>
 </template>
 
 <style scoped>
