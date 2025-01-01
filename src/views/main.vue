@@ -52,7 +52,7 @@
         <!-- 左侧热搜列表 -->
         <div class="hot-search-list">
           <el-menu
-            :default-active="hotCategories[0].id.toString()"
+            :default-active="activeHot"
             class="hot-menu"
           >
             <el-menu-item
@@ -139,6 +139,7 @@
       ]);
   
       const activeCategory = ref(categories.value[0].id.toString());
+      
   
       // 所有电脑产品
       const products = ref([
@@ -228,6 +229,8 @@
           "../../public/hotline6.jpg",
         ],
       });
+
+      const activeHot = ref(hotCategories.value[0].id.toString());
   
       // 引用轮播图组件
       const hotCarouselRef = ref(null);
@@ -245,6 +248,7 @@
         if (index !== -1 && hotCarouselRef.value) {
           hotCarouselRef.value.setActiveItem(index);
         }
+        activeHot.value = id.toString();
       };
   
       return {
