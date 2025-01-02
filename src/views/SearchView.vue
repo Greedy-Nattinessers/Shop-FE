@@ -27,18 +27,19 @@
     <!-- 搜索结果展示区域 -->
     <div class="search-results">
       <div class="results-grid">
-        <div v-for="item in currentsearchResults" :key="item.cid" class="result-item">
+        <div v-for="item in currentsearchResults" :key="item.cid" class="result-item" @click="handleItemClick(item)">
           <div class="product-image">
             <img :src="item.image" :alt="item.name">
           </div>
-        <div class="product-info">
-          <div class="product-name">{{ item.name }}</div>
-          <div class="product-price">¥{{ item.price }}</div>
-      </div>
+          <div class="product-info">
+            <div class="product-name">{{ item.name }}</div>
+            <div class="product-price">¥{{ item.price }}</div>
+          </div>
         </div>
       </div>
     </div>
 
+    <!-- 分页组件 -->
     <el-col class="pagination">
       <el-pagination
         background
@@ -49,48 +50,55 @@
         layout="prev, pager, next, jumper"
       />
     </el-col>
-    <downnav></downnav>
+    <!-- <downnav></downnav> -->
   </div>
 </template>
 
 <script setup>
 import { ref, computed, onBeforeMount } from 'vue'
-import { ElPagination, ElCol, ElTag, ElInput, ElButton, ElStep } from 'element-plus'
+import { ElPagination, ElCol, ElTag, ElInput, ElButton } from 'element-plus'
 import 'element-plus/dist/index.css'
 import Downnav from "@/components/Downnav.vue"
 import Topnav2 from "@/components/Topnav2.vue"
 import { Search } from "@element-plus/icons-vue"
 import shopApi from '@/apis/shop'
 import { useRouter } from 'vue-router'
+import useCommodityStore from '@/stores/commodityDetail';
 
 const router = useRouter()
+const commodityStore = useCommodityStore()
 
 const searchInput = ref('')
 const searchResults = ref([])
-const pageSize = ref(3)
+const pageSize = ref(8) // 每页显示 8 个结果
 const currentPage = ref(1)
 const totalItems = computed(() => searchResults.value.length)
 
+// 处理分页变化
 const handlePageChange = (val) => {
   currentPage.value = val
 }
 
+// 计算当前页的搜索结果
 const currentsearchResults = computed(() => {
   const startIndex = (currentPage.value - 1) * pageSize.value
   const endIndex = startIndex + pageSize.value
   return searchResults.value.slice(startIndex, endIndex)
 })
 
+// 获取商品详情
 const fetchCommodityDetails = async (cid) => {
   try {
     const detailResponse = await shopApi.commodityDetail(cid)
     const detail = detailResponse.data
     const imageUrls = await Promise.all(detail.images.map(async (imageId) => {
       const albumResponse = await shopApi.commodityImage(imageId)
-      console.log(albumResponse);
       return albumResponse
     }))
-    console.log(imageUrls);
+    console.log('商品详情:', {
+      ...detail,
+      image: imageUrls[0] // 假设只展示第一张图片
+    })
     return {
       ...detail,
       image: imageUrls[0] // 假设只展示第一张图片
@@ -101,6 +109,7 @@ const fetchCommodityDetails = async (cid) => {
   }
 }
 
+// 提交搜索
 const submitSearch = async () => {
   const input = searchInput.value.trim()
   console.log('搜索关键词:', input)
@@ -108,23 +117,28 @@ const submitSearch = async () => {
   try {
     const allCommoditiesResponse = await shopApi.allCommodities()
     const allCommodities = allCommoditiesResponse.data
-    if(input) {
+    if (input) {
       const filteredCommodities = allCommodities.filter(item => item.name.includes(input))
       const detailedCommodities = await Promise.all(filteredCommodities.map(async (item) => {
         return await fetchCommodityDetails(item.cid)
       }))
       searchResults.value = detailedCommodities.filter(item => item !== null)
-    }else{
+      console.log('所有商品:', searchResults.value)
+    } else {
       const detailedCommodities = await Promise.all(allCommodities.map(async (item) => {
         return await fetchCommodityDetails(item.cid)
       }))
       searchResults.value = detailedCommodities.filter(item => item !== null)
+      console.log('所有商品:', searchResults.value)
     }
+    // 重置到第一页
+    currentPage.value = 1
   } catch (error) {
     console.error('搜索失败:', error)
   }
 }
 
+// 页面加载时触发搜索
 onBeforeMount(async () => {
   const input = router.currentRoute.value.query?.id
   if (input) {
@@ -135,10 +149,9 @@ onBeforeMount(async () => {
 
 // 标签组数据
 const tagGroups = ref({
-  '笔记本': ['Lenovo'],
-  'CPU型号': ['intel i5', 'intel i7', 'intel i9'],
-  '内存容量': ['16G', '32G', '64G'],
-  '适用场景': ['校园学生', '商务办公', '高清游戏', '高性能独显']
+  '品牌': ['联想'],
+  '台式机': ['异能者', 'Geekpro', '天逸'],
+  '笔记本': ['Y9000', 'R9000', '小新', 'YOGA']
 })
 
 // 已选择的标签
@@ -146,17 +159,49 @@ const selectedTags = ref({})
 
 // 处理标签选择
 const handleTagSelect = (groupName, tag) => {
-  if (selectedTags.value[groupName] === tag) {
-    delete selectedTags.value[groupName]
-  } else {
-    selectedTags.value[groupName] = tag
+  // 清空所有已选中的标签
+  selectedTags.value = {}
+
+  // 设置当前选中的标签
+  selectedTags.value[groupName] = tag
+
+  // 将选中的标签内容替换到搜索框中
+  searchInput.value = tag
+
+  // 触发搜索
+  submitSearch()
+}
+
+// 处理点击搜索结果项
+const handleItemClick = async (item) => {
+  const detail = await shopApi.commodityDetail(item.cid)
+  // const images = []
+  // images.push({imageId :detail.data.images[0]})
+  // images.push(detail.data.image)
+  const commodity = {
+    commodityId: item.cid,
+    name: item.name,
+    price: item.price,
+    album: item.album,
+    description: item.description,
+    images: item.images,
+    i: 0
   }
+  // 更新 commodityStore 的 state
+  commodityStore.setCommodity(commodity)
+
+  console.log('商品详情:', commodity)
+
+  // 跳转到商品详情页面
+  router.push('/CommodityDetail')
 }
 </script>
 
 <style scoped>
 .search-page {
   padding: 20px;
+  position: relative;
+  min-height: 100vh;
 }
 
 .search-input {
@@ -209,6 +254,7 @@ const handleTagSelect = (groupName, tag) => {
   border-radius: 8px;
   padding: 10px;
   text-align: center;
+  cursor: pointer; /* 添加鼠标指针样式 */
 }
 
 .product-image {
@@ -218,12 +264,12 @@ const handleTagSelect = (groupName, tag) => {
 }
 
 .product-image img {
-  
   height: 100%;
   object-fit: cover;
   border-radius: 4px;
 }
-.product-info{
+
+.product-info {
   background-color: #f1f1f1;
 }
 
@@ -246,8 +292,8 @@ const handleTagSelect = (groupName, tag) => {
   display: flex;
   align-items: center;
   justify-content: center;
-  position: fi; /* 绝对定位 */
-  bottom: 0px; /* 距离底部的高度，根据下方组件的高度调整 */
+  position: fixed; /* 固定定位 */
+  bottom: 0; /* 底部对齐 */
   left: 0; /* 左侧对齐 */
   right: 0; /* 右侧对齐 */
   padding: 10px 0; /* 上下内边距 */

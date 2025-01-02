@@ -169,7 +169,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted } from 'vue';
+import { ref, reactive, computed, onMounted, onBeforeMount } from 'vue';
 import { storeToRefs } from 'pinia'
 import { ElButton, ElForm, ElMessage, ElDialog, ElInput, ElImage } from 'element-plus';
 import Topnav from "@/components/Topnav.vue";
@@ -186,7 +186,7 @@ const userStore = useUserStore()
 const { addresses } = storeToRefs(userStore)
 
 const commentsUsernameMap = ref({}); 
-onMounted(async () => {
+onBeforeMount(async () => {
     await commodityStore.fetchCommodityById();
     await userStore.fetchAddresses();
     const add = await userApi.getAddress(userStore.aid);
@@ -200,6 +200,8 @@ onMounted(async () => {
         commentsUsernameMap.value[comment.uid] = await commodityStore.fetchCommentsUsername(comment.uid)
     }
     images.value = commodityStore.images.map(imageId => shopApi.commodityImage(imageId));
+    // images.value = commodityStore.images;
+    console.log(images.value);
     // await commodityStore.fetchCommodityImage();
 });
 
