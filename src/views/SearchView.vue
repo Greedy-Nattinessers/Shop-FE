@@ -112,6 +112,7 @@ const fetchCommodityDetails = async (cid) => {
 // 提交搜索
 const submitSearch = async () => {
   const input = searchInput.value.trim()
+  selectedTags.value = {}
   console.log('搜索关键词:', input)
 
   try {
@@ -162,14 +163,13 @@ const handleTagSelect = (groupName, tag) => {
   // 清空所有已选中的标签
   selectedTags.value = {}
 
-  // 设置当前选中的标签
-  selectedTags.value[groupName] = tag
-
   // 将选中的标签内容替换到搜索框中
   searchInput.value = tag
 
   // 触发搜索
   submitSearch()
+  // 设置当前选中的标签
+  selectedTags.value[groupName] = tag
 }
 
 // 处理点击搜索结果项
