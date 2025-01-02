@@ -1,215 +1,258 @@
 <template>
-    <Topnav2 viewName="搜索"></Topnav2>
-    <div class="search-page">
-
+  <Topnav2 viewName="搜索"></Topnav2>
+  <div class="search-page">
     <div class="search-input">
-        <el-input v-model="input" style="width:300px;height: 30px;"
-        placeholder="请输入搜索的商品名"></el-input>
-        <el-button :icon="Search"  @click="submitSearch"></el-button>
+      <el-input v-model="searchInput" style="width:300px;height: 30px;" placeholder="请输入搜索的商品名"></el-input>
+      <el-button :icon="Search" @click="submitSearch"></el-button>
     </div>
 
-      <!-- 搜索标签区域 -->
-      <div class="search-tags">
-        <div v-for="(tagGroup, groupName) in tagGroups" :key="groupName" class="tag-group">
-          <div class="group-name">{{ groupName }}</div>
-          <div class="tags">
-            <el-tag
-              v-for="tag in tagGroup"
-              :key="tag"
-              :type="selectedTags[groupName] === tag ? 'primary' : 'info'"
-              class="tag-item"
-              @click="handleTagSelect(groupName, tag)"
-            >
-              {{ tag }}
-            </el-tag>
-          </div>
+    <!-- 搜索标签区域 -->
+    <div class="search-tags">
+      <div v-for="(tagGroup, groupName) in tagGroups" :key="groupName" class="tag-group">
+        <div class="group-name">{{ groupName }}</div>
+        <div class="tags">
+          <el-tag
+            v-for="tag in tagGroup"
+            :key="tag"
+            :type="selectedTags[groupName] === tag ? 'primary' : 'info'"
+            class="tag-item"
+            @click="handleTagSelect(groupName, tag)"
+          >
+            {{ tag }}
+          </el-tag>
         </div>
       </div>
-  
-      <!-- 搜索结果展示区域 -->
-      <div class="search-results">
-        <div class="results-grid">
-          <div v-for="item in searchResults" :key="item.id" class="result-item">
-            <div class="product-image">
-              <img :src="item.image" :alt="item.name">
-            </div>
-            <div class="product-name">{{ item.name }}</div>
-            <div class="product-price">¥{{ item.price }}</div>
-          </div>
-        </div>
-      </div>
-
-      <el-col class="pagination">
-        <el-pagination
-          background
-          :page-size="pageSize"
-          :total="totalItems"
-          :current-page="currentPage"
-          @current-change="handlePageChange"
-          layout="prev, pager, next, jumper"
-        />
-      </el-col>
-      <downnav></downnav>
     </div>
-  </template>
-  
-  <script setup>
-  import { ref, computed} from 'vue'
-  import {ElPagination, ElCol, ElTag, ElInput, ElButton} from 'element-plus';
-  import 'element-plus/dist/index.css';
-  import Downnav from "@/components/Downnav.vue";
-  import Topnav2 from "@/components/Topnav2.vue";
-  import {Search} from "@element-plus/icons-vue";
-  import shopApi from '@/apis/shop'; // 导入整个 userApi 对象
-  import useUserStore from '@/stores/user/index';
-  
-  // 标签组数据
-  const tagGroups = ref({
-    '笔记本': ['Lenovo'],
-    'CPU型号': ['intel i5', 'intel i7', 'intel i9'],
-    '内存容量': ['16G', '32G', '64G'],
-    '适用场景': ['校园学生', '商务办公', '高清游戏', '高性能独显']
-  })
-  
-  // 已选择的标签
-  const selectedTags = ref({})
-  
-  // 处理标签选择
-  const handleTagSelect = (groupName, tag) => {
-    if (selectedTags.value[groupName] === tag) {
-      // 如果点击的是已选中的标签，则取消选择
-      delete selectedTags.value[groupName]
-    } else {
-      // 选择新标签
-      selectedTags.value[groupName] = tag
+
+    <!-- 搜索结果展示区域 -->
+    <div class="search-results">
+      <div class="results-grid">
+        <div v-for="item in currentsearchResults" :key="item.cid" class="result-item">
+          <div class="product-image">
+            <img :src="item.image" :alt="item.name">
+          </div>
+        <div class="product-info">
+          <div class="product-name">{{ item.name }}</div>
+          <div class="product-price">¥{{ item.price }}</div>
+      </div>
+        </div>
+      </div>
+    </div>
+
+    <el-col class="pagination">
+      <el-pagination
+        background
+        :page-size="pageSize"
+        :total="totalItems"
+        :current-page="currentPage"
+        @current-change="handlePageChange"
+        layout="prev, pager, next, jumper"
+      />
+    </el-col>
+    <downnav></downnav>
+  </div>
+</template>
+
+<script setup>
+import { ref, computed, onBeforeMount } from 'vue'
+import { ElPagination, ElCol, ElTag, ElInput, ElButton, ElStep } from 'element-plus'
+import 'element-plus/dist/index.css'
+import Downnav from "@/components/Downnav.vue"
+import Topnav2 from "@/components/Topnav2.vue"
+import { Search } from "@element-plus/icons-vue"
+import shopApi from '@/apis/shop'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
+
+const searchInput = ref('')
+const searchResults = ref([])
+const pageSize = ref(3)
+const currentPage = ref(1)
+const totalItems = computed(() => searchResults.value.length)
+
+const handlePageChange = (val) => {
+  currentPage.value = val
+}
+
+const currentsearchResults = computed(() => {
+  const startIndex = (currentPage.value - 1) * pageSize.value
+  const endIndex = startIndex + pageSize.value
+  return searchResults.value.slice(startIndex, endIndex)
+})
+
+const fetchCommodityDetails = async (cid) => {
+  try {
+    const detailResponse = await shopApi.commodityDetail(cid)
+    const detail = detailResponse.data
+    const imageUrls = await Promise.all(detail.images.map(async (imageId) => {
+      const albumResponse = await shopApi.commodityImage(imageId)
+      console.log(albumResponse);
+      return albumResponse
+    }))
+    console.log(imageUrls);
+    return {
+      ...detail,
+      image: imageUrls[0] // 假设只展示第一张图片
     }
+  } catch (error) {
+    console.error('获取商品详情失败:', error)
+    return null
   }
-  
-  // 模拟搜索结果数据
-  const searchResults = ref([
-    { id: 1, name: "联想拯救者Y9000P", price: 11000, image: "../../public/Y9000.jpg" },
-    { id: 2, name: "联想拯救者R9000P", price: 9000, image: "../../public/R9000.jpg" },
-    { id: 3, name: "联想moto razr 50", price: 4000, image: "../../public/moto.png" },
-    { id: 4, name: "小新Pro AI元启", price: 6399, image: "../../public/xiaoxin.jpg" },
-    { id: 5, name: "拯救者Y700", price: 3000, image: "../../public/Y700.jpg" },
-    { id: 6, name: "YOGA 27高能AI一体电脑", price: 6999, image: "../../public/YOGA.jpg" },
-  ])
+}
 
-  const pageSize = ref(3);
-  const currentPage = ref(1);
-  const totalItems = computed(() => searchResults.value.length);
-  
-  const handlePageChange = (val) => {
-    currentPage.value = val;
-  };
+const submitSearch = async () => {
+  const input = searchInput.value.trim()
+  console.log('搜索关键词:', input)
 
-  const currentsearchResults = computed(() => {
-    const startIndex = (currentPage.value - 1) * pageSize.value;
-    const endIndex = startIndex + pageSize.value;
-    return searchResults.value.slice(startIndex, endIndex);
-  });
+  try {
+    const allCommoditiesResponse = await shopApi.allCommodities()
+    const allCommodities = allCommoditiesResponse.data
+    if(input) {
+      const filteredCommodities = allCommodities.filter(item => item.name.includes(input))
+      const detailedCommodities = await Promise.all(filteredCommodities.map(async (item) => {
+        return await fetchCommodityDetails(item.cid)
+      }))
+      searchResults.value = detailedCommodities.filter(item => item !== null)
+    }else{
+      const detailedCommodities = await Promise.all(allCommodities.map(async (item) => {
+        return await fetchCommodityDetails(item.cid)
+      }))
+      searchResults.value = detailedCommodities.filter(item => item !== null)
+    }
+  } catch (error) {
+    console.error('搜索失败:', error)
+  }
+}
 
-  const submitSearch = async () =>{
-    let allCommodities = await shopApi.allCommodities();
-    console.log(allCommodities);
-    let Commodities = allCommodities.data;
-    console.log(Commodities);
-    let searchResults = Commodities.filter((item) => {
-      return item.name.includes(input);
-    });
+onBeforeMount(async () => {
+  const input = router.currentRoute.value.query?.id
+  if (input) {
+    searchInput.value = input
+    await submitSearch()
   }
+})
 
-  </script>
-  
-  <style scoped>
-  .search-page {
-    padding: 20px;
-  }
+// 标签组数据
+const tagGroups = ref({
+  '笔记本': ['Lenovo'],
+  'CPU型号': ['intel i5', 'intel i7', 'intel i9'],
+  '内存容量': ['16G', '32G', '64G'],
+  '适用场景': ['校园学生', '商务办公', '高清游戏', '高性能独显']
+})
 
-  .search-input {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  
-  .search-tags {
-    margin-bottom: 30px;
-    align-items: center;
-    justify-content: center;
-  }
-  
-  .tag-group {
-    display: flex;
-    align-items: center;
-    margin-bottom: 15px;
-  }
-  
-  .group-name {
-    width: 80px;
-    font-weight: bold;
-    color: #333;
-  }
-  
-  .tags {
-    flex: 1;
-  }
-  
-  .tag-item {
-    margin-right: 10px;
-    margin-bottom: 5px;
-    cursor: pointer;
-  }
-  
-  .search-results {
-    margin-top: 20px;
-  }
-  
-  .results-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 20px;
-    row-gap: 30px;
-  }
-  
-  .result-item {
-    border: 1px solid #eee;
-    border-radius: 8px;
-    padding: 10px;
-    text-align: center;
-  }
-  
-  .product-image {
-    width: 100%;
-    height: 200px;
-    margin-bottom: 10px;
-  }
-  
-  .product-image img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    border-radius: 4px;
-  }
-  
-  .product-name {
-    font-size: 14px;
-    color: #333;
-    margin-bottom: 8px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-  
-  .product-price {
-    color: #f56c6c;
-    font-size: 16px;
-    font-weight: bold;
-  }
+// 已选择的标签
+const selectedTags = ref({})
 
-  .pagination {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-bottom: 20px;
+// 处理标签选择
+const handleTagSelect = (groupName, tag) => {
+  if (selectedTags.value[groupName] === tag) {
+    delete selectedTags.value[groupName]
+  } else {
+    selectedTags.value[groupName] = tag
   }
-  </style>
+}
+</script>
+
+<style scoped>
+.search-page {
+  padding: 20px;
+}
+
+.search-input {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.search-tags {
+  margin-bottom: 30px;
+  align-items: center;
+  justify-content: center;
+}
+
+.tag-group {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.group-name {
+  width: 80px;
+  font-weight: bold;
+  color: #333;
+}
+
+.tags {
+  flex: 1;
+}
+
+.tag-item {
+  margin-right: 10px;
+  margin-bottom: 5px;
+  cursor: pointer;
+}
+
+.search-results {
+  margin-top: 20px;
+}
+
+.results-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  row-gap: 30px;
+}
+
+.result-item {
+  border: 1px solid #eee;
+  border-radius: 8px;
+  padding: 10px;
+  text-align: center;
+}
+
+.product-image {
+  width: 100%;
+  height: 200px;
+  margin-bottom: 10px;
+}
+
+.product-image img {
+  
+  height: 100%;
+  object-fit: cover;
+  border-radius: 4px;
+}
+.product-info{
+  background-color: #f1f1f1;
+}
+
+.product-name {
+  font-size: 14px;
+  color: #333;
+  margin-bottom: 8px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.product-price {
+  color: #f56c6c;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: fi; /* 绝对定位 */
+  bottom: 0px; /* 距离底部的高度，根据下方组件的高度调整 */
+  left: 0; /* 左侧对齐 */
+  right: 0; /* 右侧对齐 */
+  padding: 10px 0; /* 上下内边距 */
+  background-color: white; /* 背景色，避免遮挡内容 */
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1); /* 添加阴影，提升视觉效果 */
+  z-index: 1000; /* 确保分页组件在最上层 */
+}
+</style>
