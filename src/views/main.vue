@@ -311,6 +311,9 @@ export default {
     // 处理产品点击事件
     const handleProductClick = (id) => {
       commodityStore.commodityId = id;
+      commodityStore.price = products.value.find(
+        (product) => product.id === id
+      ).price;
       router.push('/CommodityDetail');
     };
 
