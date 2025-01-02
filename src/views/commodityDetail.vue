@@ -186,7 +186,8 @@ const userStore = useUserStore()
 const { addresses } = storeToRefs(userStore)
 
 const commentsUsernameMap = ref({}); 
-onBeforeMount(async () => {
+onMounted(async () => {
+    console.log(commodityStore.commodityId)
     await commodityStore.fetchCommodityById();
     await userStore.fetchAddresses();
     const add = await userApi.getAddress(userStore.aid);
@@ -246,24 +247,24 @@ const productForm = reactive({
     address: '',
     nowAid: '',
     operatingSystem: [
-        { name: '操作A', price: 50 },
-        { name: '硬件B', price: 60 },
-        { name: '硬件C', price: 70 }
+        { name: '操作A', price: 0 },
+        { name: '硬件B', price: 10 },
+        { name: '硬件C', price: 20 }
     ],
     CPU: [
-        { name: '处理器A', price: 100 },
-        { name: '硬件B', price: 110 },
-        { name: '硬件C', price: 120 }
+        { name: '处理器A', price: 0 },
+        { name: '硬件B', price: 10 },
+        { name: '硬件C', price: 20 }
     ],
     storage: [
-        { name: '存储A', price: 80 },
-        { name: '硬件B', price: 90 },
-        { name: '硬件C', price: 100 }
+        { name: '存储A', price: 0 },
+        { name: '硬件B', price: 10 },
+        { name: '硬件C', price: 20 }
     ],
     graphicsCard: [
-        { name: '显卡A', price: 200 },
-        { name: '硬件B', price: 220 },
-        { name: '硬件C', price: 240 }
+        { name: '显卡A', price: 0 },
+        { name: '硬件B', price: 100 },
+        { name: '硬件C', price: 200 }
     ],
     purchaseQuantity: 1,
 });

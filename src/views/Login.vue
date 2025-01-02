@@ -194,7 +194,7 @@ const submitForm = async () => {
             await userStore.login({ username: loginParams.username, password: loginParams.password });
             await userStore.update();
             userStore.changePassword(loginParams.password);
-            router.push('/Order');
+            router.push('/Main');
         }
         catch {
             ElMessage.error('登录失败，请检查用户名和密码是否正确！');

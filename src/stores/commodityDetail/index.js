@@ -10,7 +10,6 @@ const useCommodityStore = defineStore('commodity', {
     album: null,
     description: null,
     images: [],
-    i: null,
     comments: []
   }),
 
@@ -40,6 +39,7 @@ const useCommodityStore = defineStore('commodity', {
       try {
         const res = await commodityApi.commodityDetail(this.commodityId)
         this.setCommodity(res.data)
+        console.log(res.data)
         return true
       } catch {
         return false

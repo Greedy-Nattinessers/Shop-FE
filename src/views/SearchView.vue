@@ -185,12 +185,18 @@ const handleItemClick = async (item) => {
     album: item.album,
     description: item.description,
     images: item.images,
-    i: 0
+    comments: []
   }
   // 更新 commodityStore 的 state
-  commodityStore.setCommodity(commodity)
+  // commodityStore.setCommodity(commodity)
+  commodityStore.commodityId = item.cid
+  commodityStore.name = item.name
+  commodityStore.price = item.price
+  commodityStore.album = item.album
+  commodityStore.description = item.description
+  commodityStore.images = item.images
 
-  console.log('商品详情:', commodity)
+  console.log('商品详情:', item.cid)
 
   // 跳转到商品详情页面
   router.push('/CommodityDetail')
