@@ -26,7 +26,7 @@
   height: 80px;
   padding:20px 30px 0 70px;
   position: absolute;
-  bottom: -370px;
+  bottom: -400px;
   border: 1px solid black;
 }
 span{

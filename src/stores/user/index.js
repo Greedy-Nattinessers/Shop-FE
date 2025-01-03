@@ -11,7 +11,7 @@ const useUserStore = defineStore('user', {
         birthday: undefined,
         gender: undefined,
         addresses: [], // 地址列表状态
-        aid: undefined
+        aid: undefined,
     }),
     getters: {
         userInfo(state) {
@@ -29,6 +29,7 @@ const useUserStore = defineStore('user', {
 
         async login({username, password}) {
             try {
+                console.log(username)
                 const res = await user.login({username, password})
                 const token = res.data.access_token
                 localStorage.setItem('token', token)

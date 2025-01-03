@@ -5,11 +5,16 @@ import userApi from '@/apis/user'; // 导入整个 userApi 对象
 import orderApi from '@/apis/order.js'
 import shopApi from '@/apis/shop.js'
 import cartApi from "@/apis/cart.js";
+import router from "@/router";
+import useUserStore from "@/stores/user";
+import { useStore } from "vuex";
 export default {
   components: {Downnav, Topnav2},
   data(){
     return {
-      orders:[]
+      orders:[],
+      // userName:"",
+      // password:"",
     }
   },
   mounted() {
@@ -42,6 +47,8 @@ export default {
         const Lists = await Promise.all(promises); // 等待所有promises完成，并获取结果数组
         console.log(Lists);
         this.orders = Lists;
+        // this.userName = useUserStore().username;
+        // this.password = useUserStore().password;
       } catch (error) {
         console.error('无商品');
       }
@@ -50,16 +57,17 @@ export default {
       return e.price*e.count
     },
     signReceive:async function (e){
-      await console.log(orderApi.receiveOrder(e.oid,1));
-      location.reload();
+      await orderApi.receiveOrder(e.oid,1);
+      router.go(0);
+    
     },
     jumpToDetails:function (e){
       console.log("跳到"+e.name)
     },
     deleteOrder:async function (e){
-      await orderApi.receiveOrder(e.oid,1);
-      await console.log(orderApi.deleteOrder(e.oid));
-      location.reload();
+      await orderApi.receiveOrder(e.oid,0);
+      await orderApi.deleteOrder(e.oid);
+      await router.go(0);
     },
   }
 }

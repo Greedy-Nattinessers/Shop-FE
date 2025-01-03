@@ -25,7 +25,6 @@ const register = async (registerForm, requestId) => {
     const headers = new AxiosHeaders()
     headers.set('request-id', requestId)
     const response = await postFormData('/user/register', registerForm, headers)
-    console.log(response.status_code)
     if (response.status_code !== 201) {
         console.error(response)
         return Promise.reject(response)

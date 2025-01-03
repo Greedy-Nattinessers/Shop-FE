@@ -6,6 +6,7 @@ import useUserStore from '@/stores/user/index';
 import userApi from '@/apis/user'; // 导入整个 userApi 对象
 import Topnav2 from "@/components/Topnav2.vue";
 import Downnav from "@/components/Downnav.vue";
+import router from "@/router";
 
 export default {
   components: {Downnav, Topnav2},
@@ -37,8 +38,8 @@ export default {
         await Promise.all(promises);
         this.cart = data.data; // 将获取到的数据赋值给cart
         this.address = await userApi.address();
-        console.log(this.address.data);
-        console.log(this.cart);
+        // console.log(this.address.data);
+        // console.log(this.cart);
       } catch (error) {
         console.error('无商品');
       }
@@ -75,18 +76,35 @@ export default {
     collection:function (){
       alert("收藏成功")
     },
-    isChecked:function (e){
+    isChecked:function (e,flag){
+    if(flag){
       if(e.checked) {
         this.countNow -= e.count;
         this.sumNow-=this.priceSum(e);
         this.isAllChecked=false;
+        }
+        else {
+          this.countNow += e.count;
+          this.sumNow+=this.priceSum(e);
+        }
+        e.checked=!e.checked;
+    }
+    else{
+      if(!this.isAllChecked){
+        if(!e.checked){
+          this.countNow += e.count;
+          this.sumNow+=this.priceSum(e);
+          e.checked=true;
+        }
       }
-      else {
-        this.countNow += e.count;
-        this.sumNow+=this.priceSum(e);
+      else{
+        if(e.checked) {
+          this.countNow -= e.count;
+          this.sumNow-=this.priceSum(e);
+          e.checked=false;
+        }
       }
-      e.checked=!e.checked;
-      console.log(e.checked)
+    }
     },
     commitOrders:async function (){
       if(this.selectAddress.EMPTY)
@@ -106,12 +124,12 @@ export default {
       }
       console.log(await cartApi.addOrder(orderData));
       alert("购买成功");
-      location.reload();
+      router.go(0);
     },
     allCheck:function (){
       const flag = this.isAllChecked;
       for (let i = 0; i < this.cart.length; i++) {
-          this.isChecked(this.cart[i]);
+          this.isChecked(this.cart[i],false);
       }
       this.isAllChecked=!flag;
     },
@@ -123,8 +141,8 @@ export default {
           this.countNow -= this.cart[i].count;
         }
       }
-      location.reload();
       this.isAllChecked=false;
+      router.go(0);
     },
     allCollect:function (){
       alert("全部收藏成功")
@@ -148,7 +166,7 @@ export default {
     </tr>
     <template v-for="(item,index) in cart" id="item">
     <tr class="order">
-      <td><input type="checkbox" :checked="item.checked"  @click="isChecked(item)" class="checkbox"/></td>
+      <td><input type="checkbox" :checked="item.checked"  @click="isChecked(item,true)" class="checkbox"/></td>
       <td>
         <img :src="item.images" id="images" @click="jumpToDetails(item)">
       </td>
@@ -194,8 +212,8 @@ export default {
 
 #pay{
   display: flex;
-  width: 1200px;
-  height: 50px;
+  width: 1300px;
+  height: 58px;
   padding: 10px 10px 0 10px;
   margin: 50px 0 0 200px;
   background-color: white;

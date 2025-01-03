@@ -212,7 +212,7 @@ export default {
       <router-link to="/Order">
       <el-menu-item index=" "><template #title>我的订单</template></el-menu-item>
       </router-link>
-      <<router-link to="/Login">
+      <router-link to="/Login">
       <el-menu-item index=" "><template #title>退出登录</template></el-menu-item>
     </router-link>
     </el-sub-menu>
