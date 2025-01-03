@@ -5,10 +5,10 @@ export default {
     return {
       gameComputer: [
         {
-          name: "拯救者 Y9000P",
+          name: "拯救者Y9000P",
         },
         {
-          name: "拯救者 Y9000",
+          name: "拯救者Y9000",
         }
       ],
       thinComputer: [
@@ -187,7 +187,7 @@ export default {
     <el-input v-model="input" style="width:300px;height: 30px;margin:12px 0 0 360px;"
     placeholder="请输入搜索的商品名"></el-input>
     <el-button :icon="Search" style="margin:11px 0 0 10px;border:0;" @click="submitSearch"></el-button>
-    <router-link to="ShoppingCart">
+    <router-link to="/ShoppingCart">
         <el-button :icon="ShoppingCart"
                    style="
                 position: absolute;
@@ -203,16 +203,18 @@ export default {
                 border:0;
                 right: 5px;" id="userName" index="user">
       <template #title>{{user.name}}</template>
-      <router-link to="userInfo">
+      <router-link to="/userInfo">
       <el-menu-item index=" "><template #title>个人信息</template></el-menu-item>
       </router-link>
-      <router-link to="Favor">
+      <router-link to="/Favor">
       <el-menu-item index=" "><template #title>我的收藏</template></el-menu-item>
       </router-link>
-      <router-link to="Order">
+      <router-link to="/Order">
       <el-menu-item index=" "><template #title>我的订单</template></el-menu-item>
       </router-link>
+      <<router-link to="/Login">
       <el-menu-item index=" "><template #title>退出登录</template></el-menu-item>
+    </router-link>
     </el-sub-menu>
   </el-menu>
 </template>

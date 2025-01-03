@@ -1,6 +1,6 @@
 <template>
     <div class="background">
-        <el-row class="login-container" justify="start" align="middle" style="padding-left: 900px;">
+        <el-row class="login-container" justify="start" align="middle" style="padding-left: 100px;">
             <el-card style="max-width: 480px">
 
                 <template #header>

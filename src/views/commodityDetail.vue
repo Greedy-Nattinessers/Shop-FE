@@ -1,5 +1,7 @@
 <template>
-     <!-- <Topnav></Topnav> -->
+    <div>
+    <Topnav></Topnav>
+    </div>
     <div class="container">
         <div class="left-side">
             <div class="large-image">
@@ -28,7 +30,7 @@
 
         <div class="right-side">
             <el-form :model="productForm" label-width="10%" style="height: 100%;width: 100%;">
-                <el-form-item label="商品名称" style="display: flex; align-items: center; height: 5%;">
+                <el-form-item label="商品名称" style="display: flex; align-items: center; height: 5%;margin-top: 20px;">
                     <h3>{{ productForm.name }}</h3>
                 </el-form-item>
 
@@ -165,7 +167,7 @@
         </div>
 
     </div>
-    <!-- <downnav></downnav> -->
+    <downnav></downnav>
 </template>
 
 <script setup>
@@ -187,7 +189,6 @@ const { addresses } = storeToRefs(userStore)
 
 const commentsUsernameMap = ref({}); 
 onMounted(async () => {
-    console.log(commodityStore.commodityId)
     await commodityStore.fetchCommodityById();
     await userStore.fetchAddresses();
     const add = await userApi.getAddress(userStore.aid);
@@ -202,7 +203,6 @@ onMounted(async () => {
     }
     images.value = commodityStore.images.map(imageId => shopApi.commodityImage(imageId));
     // images.value = commodityStore.images;
-    console.log(images.value);
     // await commodityStore.fetchCommodityImage();
 });
 

@@ -33,7 +33,7 @@
         mode="horizontal"
         @select="handleSelect"
     >
-      <router-link to="Main">
+      <router-link to="/Main">
         <el-image src="../../public/logo.png"
                   style="width: 200px;height: 40px;margin-top: 10px;">
         </el-image>
@@ -55,16 +55,18 @@
                   border:0;
                   right: 5px;" id="userName" index="0">
         <template #title>{{user.name}}</template>
-        <router-link to="userInfo">
+        <router-link to="/userInfo">
           <el-menu-item index="1"><template #title>个人信息</template></el-menu-item>
         </router-link>
-        <router-link to="Favor">
+        <router-link to="/Favor">
           <el-menu-item index="2"><template #title>我的收藏</template></el-menu-item>
         </router-link>
-        <router-link to="Order">
+        <router-link to="/Order">
           <el-menu-item index="3"><template #title>我的订单</template></el-menu-item>
         </router-link>
+        <router-link to="/Login">
         <el-menu-item index="4"><template #title>退出登录</template></el-menu-item>
+      </router-link>
       </el-sub-menu>
     </el-menu>
   </div>
