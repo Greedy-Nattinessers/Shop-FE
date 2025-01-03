@@ -21,7 +21,7 @@
                 <div class="user-info">
                     <div class="info-item">用户名: <strong>{{ userStore.username }}</strong></div>
                     <div class="info-item">性别: <strong>{{ userStore.gender ? '男' : '女' }}</strong></div>
-                    <div class="info-item">生日: <strong>{{ useStore.birthday ? useStore.birthday:'未设置' }}</strong></div>
+                    <div class="info-item">生日: <strong>{{ userStore.birthday ? userStore.birthday:'未设置' }}</strong></div>
                     <div class="info-item">邮箱: <strong>{{ userStore.email }}</strong></div>
                     <!-- <div class="info-item">收货地址: <strong>{{ userInfo.address }}</strong></div> -->
                 </div>

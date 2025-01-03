@@ -247,24 +247,24 @@ const productForm = reactive({
     address: '',
     nowAid: '',
     operatingSystem: [
-        { name: '操作A', price: 0 },
-        { name: '硬件B', price: 10 },
-        { name: '硬件C', price: 20 }
+        { name: 'Widnows', price: 0 },
+        { name: 'Ubuntu', price: 10 },
+        { name: 'macOS', price: 20 }
     ],
     CPU: [
-        { name: '处理器A', price: 0 },
-        { name: '硬件B', price: 10 },
-        { name: '硬件C', price: 20 }
+        { name: 'Intel CPU', price: 0 },
+        { name: 'AMD CPU', price: 10 },
+        { name: 'M1 Pro', price: 20 }
     ],
     storage: [
-        { name: '存储A', price: 0 },
-        { name: '硬件B', price: 10 },
-        { name: '硬件C', price: 20 }
+        { name: 'Samsung 860 EVO', price: 0 },
+        { name: 'Samsung 970 EVO Plus', price: 10 },
+        { name: 'ADATA XPG SX8200 Pro', price: 20 }
     ],
     graphicsCard: [
-        { name: '显卡A', price: 0 },
-        { name: '硬件B', price: 100 },
-        { name: '硬件C', price: 200 }
+        { name: 'GeForce RTX 4090', price: 0 },
+        { name: 'Radeon RX 7900 XTX', price: 100 },
+        { name: 'Radeon RX 7700 XT', price: 200 }
     ],
     purchaseQuantity: 1,
 });
@@ -353,6 +353,9 @@ const addComment = async () => {
     }
     await commodityStore.addComment(commentPara);
     await commodityStore.fetchComments();
+    for (const comment of commodityStore.comments) {
+        commentsUsernameMap.value[comment.uid] = await commodityStore.fetchCommentsUsername(comment.uid)
+    }
     dialogVisible.value = false;
     ElMessage.success('评论成功！');
 }

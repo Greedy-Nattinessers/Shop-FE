@@ -226,7 +226,9 @@ const submit = async () => {
 
     try {
         await userApi.updateProfile(userInfoParams, userStore.uid); // 传入用户ID
+        await userStore.update();
         ElMessage.success('修改成功！');
+        router.push('/userinfo')
     } catch (error) {
         console.error('更新失败：', error); // 打印错误信息
         ElMessage.error('修改失败，请重试！');
