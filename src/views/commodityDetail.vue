@@ -366,7 +366,7 @@ const addComment = async () => {
 .container {
     background-color: rgb(236, 236, 236);
     width: 90%;
-    height: 95vh;
+    height: auto;
     display: flex;
     justify-content: center;
     align-items: center;
